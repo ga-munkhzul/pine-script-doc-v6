@@ -21,7 +21,7 @@ This directory contains decision-tree guides for Pine Script v6 development to h
    - Choose appropriate chart elements
    - Optimize visual presentation
 
-5. **[数据结构选择](./data-structure-selection.md)**
+5. **[Data Structure Selection](./data-structure-selection.md)**
    - Choose appropriate data containers
    - Compare arrays, matrices, and maps
 
