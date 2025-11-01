@@ -1,185 +1,185 @@
-# Pine Script 常见错误总结
+# Pine Script Common Mistakes Summary
 
-## 📊 错误统计
+## Error Statistics
 
-以下是 Pine Script 开发中最容易犯的错误，按发生频率排序：
+Below are the most common mistakes in Pine Script development, ordered by frequency:
 
-| 错误类型 | 发生频率 | 影响等级 | 容易发现 |
-|---------|---------|---------|---------|
-| 重绘错误 | 极高 | 严重 | 困难 |
-| 性能问题 | 高 | 中等 | 中等 |
-| 逻辑错误 | 高 | 严重 | 困难 |
-| 数据结构误用 | 中等 | 中等 | 容易 |
-| 类型错误 | 低 | 严重 | 容易 |
+| Error type | Frequency | Impact level | Easy to detect |
+|------------|-----------|--------------|----------------|
+| Repainting errors | Extremely high | Severe | Hard |
+| Performance issues | High | Medium | Medium |
+| Logic errors | High | Severe | Hard |
+| Data structure misuse | Medium | Medium | Easy |
+| Type errors | Low | Severe | Easy |
 
-## 🚫 十大致命错误
+## Top 10 Deadly Mistakes
 
-### 1. **未来泄漏** (最严重)
+### 1. **Future leak** (most severe)
 ```pine
-// ❌ 致命错误
+// Fatal mistake
 dailyClose = request.security(syminfo.tickerid, "D", close)
 
-// ✅ 正确做法
+// Correct approach
 dailyClose = request.security(syminfo.tickerid, "D", close[1])
 ```
 
-### 2. **实时数据误用**
+### 2. **Misuse of live data**
 ```pine
-// ❌ 会导致重绘
+// Causes repainting
 if ta.crossover(close, ta.sma(close, 20))
     strategy.entry("Long", strategy.long)
 
-// ✅ 等待确认
+// Wait for confirmation
 if ta.crossover(close, ta.sma(close, 20)) and barstate.isconfirmed
     strategy.entry("Long", strategy.long)
 ```
 
-### 3. **无限循环**
+### 3. **Infinite loops**
 ```pine
-// ❌ 危险：可能无限循环
+// Dangerous: may loop infinitely
 var float value = 0
-value := ta.sma(value, 10)  // 循环引用
+value := ta.sma(value, 10)  // Circular reference
 
-// ✅ 正确计算
+// Correct computation
 rawValue = close * 0.1
 value := ta.sma(rawValue, 10)
 ```
 
-### 4. **数组越界**
+### 4. **Array out-of-bounds**
 ```pine
-// ❌ 运行时错误
+// Runtime error
 value = array.get(arr, array.size(arr))
 
-// ✅ 安全访问
+// Safe access
 index = array.size(arr) - 1
 value = index >= 0 ? array.get(arr, index) : na
 ```
 
-### 5. **内存泄漏**
+### 5. **Memory leaks**
 ```pine
-// ❌ 无限增长
+// Unbounded growth
 var float[] data = array.new<float>()
-array.push(data, close)  // 永不清理
+array.push(data, close)  // Never cleaned up
 
-// ✅ 限制大小
+// Limit size
 if array.size(data) > 100
     array.shift(data)
 ```
 
-### 6. **条件顺序错误**
+### 6. **Wrong condition order**
 ```pine
-// ❌ 第二个条件永远不执行
+// Second condition never executes
 if close > ma50
-    // 代码
-else if close > ma20  // 永远false
-    // 代码
+    // Code
+else if close > ma20  // Always false
+    // Code
 ```
 
-### 7. **忽略na值**
+### 7. **Ignoring na values**
 ```pine
-// ❌ na值传播
-result = (naValue + 10) / 2  // 结果是na
+// na propagation
+result = (naValue + 10) / 2  // Result is na
 
-// ✅ 处理na值
+// Handle na values
 result = (nz(naValue, 0) + 10) / 2
 ```
 
-### 8. **性能陷阱**
+### 8. **Performance traps**
 ```pine
-// ❌ 重复计算
+// Repeated computation
 for i = 0 to 100
-    ma = ta.sma(close, 20)  // 每次都计算
+    ma = ta.sma(close, 20)  // Calculated each time
 
-// ✅ 预计算
+// Precompute
 ma = ta.sma(close, 20)
 for i = 0 to 100
-    // 使用ma
+    // Use ma
 ```
 
-### 9. **状态不同步**
+### 9. **State desynchronization**
 ```pine
-// ❌ 多个状态变量
+// Multiple state variables
 inLong1 = strategy.position_size > 0
-inLong2 = someOtherCondition  // 可能不一致
+inLong2 = someOtherCondition  // May be inconsistent
 
-// ✅ 单一状态
+// Single source of truth
 inLong = strategy.position_size > 0
 ```
 
-### 10. **时间框架混淆**
+### 10. **Timeframe confusion**
 ```pine
-// ❌ 错误认为这是小时数据
-h1Trend = close > ta.sma(close, 50)  // 实际是当前时间框架
+// Mistakenly assuming this is hourly data
+h1Trend = close > ta.sma(close, 50)  // Actually current timeframe
 
-// ✅ 明确获取
+// Fetch explicitly
 h1Trend = request.security(..., "60", close) > request.security(..., "60", ta.sma(close, 50))
 ```
 
-## 🛡️ 防错原则
+## Error-Prevention Principles
 
-### 1. **防御性编程**
+### 1. **Defensive programming**
 ```pine
-// 总是检查边界
+// Always check bounds
 if index >= 0 and index < array.size(arr)
     value = array.get(arr, index)
 ```
 
-### 2. **明确性原则**
+### 2. **Explicitness principle**
 ```pine
-// 使用括号明确运算顺序
+// Use parentheses to make precedence explicit
 condition = (rsi > 50 and close > ma) or volume > avgVolume
 ```
 
-### 3. **单一职责**
+### 3. **Single responsibility**
 ```pine
-// 每个变量/函数只做一件事
-var bool inPosition = strategy.position_size > 0  // 状态跟踪
+// Each variable/function does exactly one thing
+var bool inPosition = strategy.position_size > 0  // State tracking
 ```
 
-### 4. **最小化原则**
+### 4. **Minimalism principle**
 ```pine
-// 只在需要时计算
+// Compute only when needed
 if showIndicator
     expensiveCalculation()
 ```
 
-### 5. **一致性原则**
+### 5. **Consistency principle**
 ```pine
-// 保持命名和风格一致
+// Keep naming and style consistent
 ma20 = ta.sma(close, 20)
-ma50 = ta.sma(close, 50)  // 一致的命名
+ma50 = ta.sma(close, 50)  // Consistent naming
 ```
 
-## 📝 Code review checklist
+## Code review checklist
 
-### ✅ Pre-commit checks
+### Pre-commit checks
 
 1. Repainting checks
-   - [ ] Is there an offset in request.security()?
-   - [ ] Do you wait for barstate.isconfirmed?
-   - [ ] Do you use timenow for historical checks?
+   - Is there an offset in request.security()?
+   - Do you wait for barstate.isconfirmed?
+   - Do you use timenow for historical checks?
 
 2. Performance checks
-   - [ ] Do loops perform repeated calculations?
-   - [ ] Do arrays grow without bound?
-   - [ ] Are request.security() calls reasonable?
+   - Do loops perform repeated calculations?
+   - Do arrays grow without bound?
+   - Are request.security() calls reasonable?
 
 3. Logic checks
-   - [ ] Is the condition order correct?
-   - [ ] Is state consistent?
-   - [ ] Are all edge cases handled?
+   - Is the condition order correct?
+   - Is state consistent?
+   - Are all edge cases handled?
 
 4. Type checks
-   - [ ] Any type casts?
-   - [ ] Are array types consistent?
-   - [ ] Are na values handled?
+   - Any type casts?
+   - Are array types consistent?
+   - Are na values handled?
 
 5. Test checks
-   - [ ] Tested on different timeframes?
-   - [ ] How does it perform historically?
-   - [ ] Does real-time behavior meet expectations?
+   - Tested on different timeframes?
+   - How does it perform historically?
+   - Does real-time behavior meet expectations?
 
-## 🎯 Quick fix templates
+## Quick fix templates
 
 ### Fix repainting
 ```pine
@@ -215,7 +215,7 @@ if not na(value)
     // Use value
 ```
 
-## 💡 Remember these
+## Remember these
 
 1. If backtests look too perfect, there's probably repainting
 2. Performance issues often come from loops and arrays
@@ -223,33 +223,33 @@ if not na(value)
 4. Type errors are easiest; the compiler will help
 5. Good code = Simple + Clear + Testable
 
-## 🚀 进阶建议
+## Advanced Recommendations
 
-1. **使用版本控制**
-   - 每个重大修改提交
-   - 可以回滚到工作版本
+1. **Use version control**
+   - Commit each major change
+   - Allow rollback to a working version
 
-2. **编写测试用例**
-   - 正常情况
-   - 边界情况
-   - 异常情况
+2. **Write test cases**
+   - Normal cases
+   - Edge cases
+   - Exceptional cases
 
-3. **添加注释**
-   ```pine
-   // 为什么这样做，而不是做什么
-   // 使用偏移避免未来泄漏
-   dailyClose = request.security(..., close[1])
-   ```
+3. **Add comments**
+```pine
+// Explain why, not just what
+// Use an offset to avoid future leaks
+dailyClose = request.security(..., close[1])
+```
 
-4. **模块化代码**
-   - 每个函数一个职责
-   - 可复用的功能提取出来
+4. **Modularize code**
+   - One responsibility per function
+   - Extract reusable functionality
 
-5. **持续学习**
-   - 查看他人的代码
-   - 学习最佳实践
-   - 保持更新知识
+5. **Continuous learning**
+   - Review others' code
+   - Learn best practices
+   - Keep knowledge up-to-date
 
 ---
 
-**最终建议**：代码不仅要能运行，更要正确、高效、可维护。多思考，多测试，多改进！
+**Final advice**: Code should not only run, but be correct, efficient, and maintainable. Think more, test more, and keep improving!

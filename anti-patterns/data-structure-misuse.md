@@ -1,296 +1,296 @@
-# 数据结构误用反例
+# Data Structure Misuse Anti-Patterns
 
-Pine Script v6 提供了 arrays、maps 和 matrices 等数据结构，误用这些结构会导致错误和性能问题。
+Pine Script v6 provides data structures such as arrays, maps, and matrices. Misusing these structures can cause errors and performance issues.
 
-## 1. 数组越界错误
+## 1. Array out-of-bounds errors
 
-### ❌ 错误示例：数组索引越界
+### ❌ Incorrect example: array index out of bounds
 ```pine
 //@version=6
-indicator("错误：数组越界")
+indicator("Error: Array out of bounds")
 
-// ❌ 尝试访问不存在的索引
+// ❌ Attempt to access a non-existent index
 var float[] prices = array.new<float>()
 array.push(prices, close)
 array.push(prices, close[1])
 
-// 错误：数组只有2个元素，但试图访问索引5
-value = array.get(prices, 5)  // 运行时错误！
+// Error: the array has only 2 elements but tries to access index 5
+value = array.get(prices, 5)  // Runtime error!
 plot(value)
 ```
 
-### 🚨 问题说明
-- Pine Script 数组是 0 索引的
-- 访问超出 `size - 1` 的索引会导致运行时错误
-- 错误会导致脚本停止工作
+### 🚨 Problem explanation
+- Pine Script arrays are 0-indexed
+- Accessing an index beyond `size - 1` causes a runtime error
+- The error stops the script
 
-### ✅ 正确做法：检查索引有效性
+### ✅ Correct approach: check index validity
 ```pine
 //@version=6
-indicator("正确：检查索引")
+indicator("Correct: Check index")
 
 var float[] prices = array.new<float>()
 array.push(prices, close)
 array.push(prices, close[1])
 
-// ✅ 检查索引是否有效
+// ✅ Check whether index is valid
 index = 5
 value = index < array.size(prices) ? array.get(prices, index) : na
-plot(value, title="值", display=display.data_window)
+plot(value, title="Value", display=display.data_window)
 ```
 
-## 2. 类型不匹配
+## 2. Type mismatch
 
-### ❌ 错误示例：混合类型数组
+### ❌ Incorrect example: mixed-type array
 ```pine
 //@version=6
-indicator("错误：类型不匹配")
+indicator("Error: Type mismatch")
 
-// ❌ 声明为float数组但试图插入int
+// ❌ Declared as a float array but trying to insert int
 var float[] mixedArray = array.new<float>()
 
-array.push(mixedArray, close)      // OK，float
-array.push(mixedArray, 10)        // OK，int可以自动转为float
-array.push(mixedArray, "text")    // 错误！不能插入string
+array.push(mixedArray, close)      // OK, float
+array.push(mixedArray, 10)        // OK, int can be auto-converted to float
+array.push(mixedArray, "text")    // Error! cannot insert string
 ```
 
-### 🚨 问题说明
-- Pine Script 数组只能存储一种类型
-- 类型在声明时确定
-- 尝试插入不兼容类型会导致编译错误
+### 🚨 Problem explanation
+- Pine Script arrays can store only one type
+- The type is determined at declaration
+- Inserting an incompatible type causes a compile-time error
 
-### ✅ 正确做法：统一类型或使用不同数组
+### ✅ Correct approach: unify types or use different arrays
 ```pine
 //@version=6
-indicator("正确：统一类型")
+indicator("Correct: Unified types")
 
-// ✅ 方法1：统一使用float
+// ✅ Method 1: use float consistently
 var float[] numbers = array.new<float>()
 array.push(numbers, close)
-array.push(numbers, 10.0)  // 显式转换为float
+array.push(numbers, 10.0)  // Explicit conversion to float
 
-// ✅ 方法2：为不同类型创建不同数组
+// ✅ Method 2: create separate arrays for different types
 var string[] texts = array.new<string>()
 var float[] values = array.new<float>()
 
-array.push(texts, "价格")
+array.push(texts, "Price")
 array.push(values, close)
 ```
 
-## 3. 数组修改时遍历
+## 3. Modifying arrays during iteration
 
-### ❌ 错误示例：遍历时修改数组
+### ❌ Incorrect example: modifying array while iterating
 ```pine
 //@version=6
-indicator("错误：遍历时修改")
+indicator("Error: Modify while iterating")
 
 var float[] data = array.from(1, 2, 3, 4, 5)
 
-// ❌ 遍历时添加元素，导致无限循环
+// ❌ Adding elements while iterating causes infinite loop
 for i = 0 to array.size(data) - 1
     value = array.get(data, i)
     if value > 3
-        array.push(data, value * 2)  // 危险！数组在增长
+        array.push(data, value * 2)  // Dangerous! array is growing
 ```
 
-### 🚨 问题说明
-- 遍历时修改数组大小会导致未定义行为
-- 可能导致无限循环或跳过元素
-- Pine Script 可能限制循环次数（100次）
+### 🚨 Problem explanation
+- Modifying array size while iterating leads to undefined behavior
+- May cause infinite loops or skip elements
+- Pine Script may limit loop counts (100)
 
-### ✅ 正确做法：使用临时数组
+### ✅ Correct approach: use a temporary array
 ```pine
 //@version=6
-indicator("正确：使用临时数组")
+indicator("Correct: Use temporary array")
 
 var float[] data = array.from(1, 2, 3, 4, 5)
 var float[] newData = array.new<float>()
 
-// ✅ 收集需要添加的元素
+// ✅ Collect elements to add
 for i = 0 to array.size(data) - 1
     value = array.get(data, i)
     if value > 3
         array.push(newData, value * 2)
 
-// 遍历完成后合并
+// Merge after iteration completes
 for i = 0 to array.size(newData) - 1
     array.push(data, array.get(newData, i))
 ```
 
-## 4. Map 键类型错误
+## 4. Map key type errors
 
-### ❌ 错误示例：使用错误类型的键
+### ❌ Incorrect example: using invalid key types
 ```pine
 //@version=6
-indicator("错误：Map键类型错误")
+indicator("Error: Map key type error")
 
-// ❌ Map只能使用string或int作为键
+// ❌ Map supports only string or int as keys
 var map<float, string> wrongMap = map.new<float, string>()
-map.put(wrongMap, 1.5, "value")  // 错误！float不能作为键
+map.put(wrongMap, 1.5, "value")  // Error! float cannot be a key
 
-// ❌ 尝试使用bool作为键
+// ❌ Trying to use bool as a key
 var map<bool, float> boolMap = map.new<bool, float>()
-map.put(boolMap, true, 100.0)     // 错误！bool不能作为键
+map.put(boolMap, true, 100.0)     // Error! bool cannot be a key
 ```
 
-### 🚨 问题说明
-- Pine Script v6 的 Map 只支持 `string` 和 `int` 作为键
-- 这是 Pine Script 的限制
-- 使用其他类型会导致编译错误
+### 🚨 Problem explanation
+- Pine Script v6 Maps support only `string` and `int` as keys
+- This is a Pine Script limitation
+- Using other types causes compile-time errors
 
-### ✅ 正确做法：使用支持的键类型
+### ✅ Correct approach: use supported key types
 ```pine
 //@version=6
-indicator("正确：支持的键类型")
+indicator("Correct: Supported key types")
 
-// ✅ 使用string作为键
+// ✅ Use string as key
 var map<string, float> config = map.new<string, float>()
 map.put(config, "risk", 2.0)
 map.put(config, "reward", 4.0)
 
-// ✅ 使用int作为键
+// ✅ Use int as key
 var map<int, string> levels = map.new<int, string>()
-map.put(levels, 1, "支撑")
-map.put(levels, 2, "阻力")
+map.put(levels, 1, "Support")
+map.put(levels, 2, "Resistance")
 
-// 如果需要其他类型，转换为string
+// If you need other types, convert to string
 key = str.tostring(someValue)
 ```
 
-## 5. Matrix 维度不匹配
+## 5. Matrix dimension mismatch
 
-### ❌ 错误示例：矩阵运算维度错误
+### ❌ Incorrect example: wrong matrix dimensions
 ```pine
 //@version=6
-indicator("错误：矩阵维度错误")
+indicator("Error: Matrix dimension error")
 
-// 创建不同维度的矩阵
-m1 = matrix.new<float>(2, 3)  // 2行3列
-m2 = matrix.new<float>(4, 5)  // 4行5列
+// Create matrices of different dimensions
+m1 = matrix.new<float>(2, 3)  // 2 rows, 3 columns
+m2 = matrix.new<float>(4, 5)  // 4 rows, 5 columns
 
-// ❌ 尝试相乘不同维度
-result = matrix.mult(m1, m2)  // 错误！维度不匹配
+// ❌ Try to multiply different dimensions
+result = matrix.mult(m1, m2)  // Error! Dimension mismatch
 
-// ❌ 设置元素时越界
-matrix.set(m1, 5, 5, 100.0)  // 错误！索引超出范围
+// ❌ Out-of-range when setting element
+matrix.set(m1, 5, 5, 100.0)  // Error! Index out of range
 ```
 
-### 🚨 问题说明
-- 矩阵乘法要求第一个矩阵的列数等于第二个矩阵的行数
-- 访问矩阵元素时必须在有效范围内
-- 维度错误会导致运行时错误
+### 🚨 Problem explanation
+- Matrix multiplication requires the first matrix's columns to equal the second matrix's rows
+- Matrix element access must be within valid ranges
+- Dimension errors cause runtime errors
 
-### ✅ 正确做法：匹配维度
+### ✅ Correct approach: match dimensions
 ```pine
 //@version=6
-indicator("正确：矩阵维度匹配")
+indicator("Correct: Matrix dimension match")
 
-// ✅ 创建匹配维度的矩阵
-m1 = matrix.new<float>(2, 3)  // 2行3列
-m2 = matrix.new<float>(3, 4)  // 3行4列
+// ✅ Create matrices with matching dimensions
+m1 = matrix.new<float>(2, 3)  // 2 rows, 3 columns
+m2 = matrix.new<float>(3, 4)  // 3 rows, 4 columns
 
-// 可以相乘：3列 = 3行
-result = matrix.mult(m1, m2)  // 结果是2行4列
+// Multiplication valid: 3 columns = 3 rows
+result = matrix.mult(m1, m2)  // Result is 2 rows x 4 columns
 
-// ✅ 安全设置元素
+// ✅ Safely set elements
 rows = matrix.rows(m1)
 cols = matrix.columns(m1)
 if rows > 0 and cols > 0
-    matrix.set(m1, 0, 0, 100.0)  // 安全访问
+    matrix.set(m1, 0, 0, 100.0)  // Safe access
 ```
 
-## 6. 低效的数组操作
+## 6. Inefficient array operations
 
-### ❌ 错误示例：频繁的数组操作
+### ❌ Incorrect example: frequent array operations
 ```pine
 //@version=6
-indicator("错误：低效数组操作")
+indicator("Error: Inefficient array operations")
 
 var float[] data = array.new<float>()
 
-// ❌ 在数组开头频繁插入（O(n)操作）
+// ❌ Frequently inserting at the beginning (O(n) operation)
 for i = 0 to 100
-    array.unshift(data, close[i])  // 每次需要移动所有元素
+    array.unshift(data, close[i])  // Must move all elements each time
 
-// ❌ 频繁删除中间元素
+// ❌ Frequently removing middle elements
 for i = 50 to 60
-    array.remove(data, i)  // 每次需要移动后续元素
+    array.remove(data, i)  // Must move subsequent elements each time
 ```
 
-### 🚨 问题说明
-- `array.unshift()` 在开头插入需要移动所有元素
-- `array.remove()` 删除中间元素需要移动后续元素
-- 频繁执行这些操作性能很差
+### 🚨 Problem explanation
+- `array.unshift()` requires moving all elements when inserting at the start
+- `array.remove()` requires moving subsequent elements when removing in the middle
+- Performing these frequently is poor performance
 
-### ✅ 正确做法：选择合适的操作
+### ✅ Correct approach: choose appropriate operations
 ```pine
 //@version=6
-indicator("正确：高效数组操作")
+indicator("Correct: Efficient array operations")
 
 var float[] data = array.new<float>()
 
-// ✅ 使用push在末尾添加（O(1)操作）
+// ✅ Use push to add at the end (O(1) operation)
 for i = 0 to 100
     array.push(data, close[i])
 
-// ✅ 如果需要反转，之后一次性操作
+// ✅ If you need to reverse, do it once afterwards
 if array.size(data) > 0
     array.reverse(data)
 
-// ✅ 批量删除而不是逐个删除
+// ✅ Delete in batches instead of one-by-one
 if array.size(data) > 50
     data = array.slice(data, 0, 50)
 ```
 
-## 7. Map 的误用
+## 7. Misuse of Map
 
-### ❌ 错误示例：Map用于简单列表
+### ❌ Incorrect example: using Map for a simple list
 ```pine
 //@version=6
-indicator("错误：Map误用")
+indicator("Error: Map misuse")
 
-// ❌ 使用Map存储简单序列
+// ❌ Using Map to store a simple sequence
 var map<string, float> priceMap = map.new<string, float>()
 map.put(priceMap, "0", close[0])
 map.put(priceMap, "1", close[1])
 map.put(priceMap, "2", close[2])
 
-// 访问时需要字符串转换，效率低
+// Access requires string conversion, inefficient
 for i = 0 to 2
     price = map.get(priceMap, str.tostring(i))
 ```
 
-### 🚨 问题说明
-- Map 适用于键值对查找
-- 对于简单的索引序列，Array更合适
-- Map 的字符串键操作比数组索引慢
+### 🚨 Problem explanation
+- Map is suitable for key-value lookups
+- For simple indexed sequences, Array is more appropriate
+- String-key operations on Map are slower than array indexing
 
-### ✅ 正确做法：选择合适的数据结构
+### ✅ Correct approach: choose the right data structure
 ```pine
 //@version=6
-indicator("正确：选择合适结构")
+indicator("Correct: Choose appropriate structure")
 
-// ✅ 简单序列使用数组
+// ✅ Use array for simple sequences
 var float[] prices = array.new<float>()
 array.push(prices, close)
 array.push(prices, close[1])
 array.push(prices, close[2])
 
-// ✅ Map用于真正需要键值查找的场景
+// ✅ Use Map where key-value lookups are truly needed
 var map<string, float> config = map.new<string, float>()
 map.put(config, "stopLoss", 2.0)
 map.put(config, "takeProfit", 4.0)
 stopLoss = map.get(config, "stopLoss")
 ```
 
-## 8. Matrix 用于简单数据
+## 8. Using Matrix for simple data
 
-### ❌ 错误示例：过度使用Matrix
+### ❌ Incorrect example: overusing Matrix
 ```pine
 //@version=6
-indicator("错误：过度使用Matrix")
+indicator("Error: Overusing Matrix")
 
-// ❌ 只需要存储几个值却使用矩阵
+// ❌ Using a matrix when only a few values need to be stored
 data = matrix.new<float>(1, 5)
 matrix.set(data, 0, 0, close)
 matrix.set(data, 0, 1, high)
@@ -298,21 +298,21 @@ matrix.set(data, 0, 2, low)
 matrix.set(data, 0, 3, open)
 matrix.set(data, 0, 4, volume)
 
-// 访问复杂
+// Access becomes complex
 closeValue = matrix.get(data, 0, 0)
 ```
 
-### 🚨 问题说明
-- Matrix 适用于二维数学运算
-- 简单数据使用Matrix过于复杂
-- 访问和操作都不如数组直观
+### 🚨 Problem explanation
+- Matrix is suitable for 2D mathematical operations
+- Using Matrix for simple data is overly complex
+- Access and operations are less intuitive than arrays
 
-### ✅ 正确做法：使用数组或多个变量
+### ✅ Correct approach: use arrays or multiple variables
 ```pine
 //@version=6
-indicator("正确：简单结构")
+indicator("Correct: Simple structures")
 
-// ✅ 方法1：使用数组
+// ✅ Method 1: use an array
 var float[] ohlcv = array.new<float>()
 array.push(ohlcv, close)
 array.push(ohlcv, high)
@@ -320,7 +320,7 @@ array.push(ohlcv, low)
 array.push(ohlcv, open)
 array.push(ohlcv, volume)
 
-// ✅ 方法2：使用结构化方法（如果数据相关）
+// ✅ Method 2: use a structured approach (if data is related)
 type OHLCV
     float close
     float high
@@ -418,24 +418,24 @@ for i = 0 to array.size(sequence) - 1
 
 ## Data structure selection guide
 
-| 需求 | 最佳选择 | 替代方案 | 注意事项 |
-|------|----------|----------|----------|
-| 简单列表 | Array | - | 索引访问快 |
-| 键值查找 | Map | Array (小数据量) | Map只支持string/int键 |
-| 数学矩阵 | Matrix | Array of Arrays | 注意维度匹配 |
-| 固定集合 | Array | Map | 预分配大小 |
-| 动态增长 | Array | - | 限制最大大小 |
-| 缓存数据 | Map/Array | - | 考虑清理策略 |
+| Requirement | Best choice | Alternative | Notes |
+|-------------|------------|-------------|-------|
+| Simple list | Array | - | Fast index access |
+| Key-value lookup | Map | Array (small datasets) | Map supports only string/int keys |
+| Math matrix | Matrix | Array of Arrays | Mind the dimension match |
+| Fixed-size set | Array | Map | Preallocate size |
+| Dynamic growth | Array | - | Limit max size |
+| Cached data | Map/Array | - | Consider cleanup strategy |
 
-## 最佳实践总结
+## Best practices summary
 
-1. **始终检查边界**：数组访问前检查索引
-2. **类型一致性**：保持数组类型一致
-3. **选择合适的结构**：根据需求选择Array/Map/Matrix
-4. **避免遍历时修改**：使用临时数组
-5. **注意性能影响**：了解操作的复杂度
-6. **处理na值**：使用nz()或显式检查
-7. **预分配大小**：已知大小时预分配
-8. **批量操作**：使用内置函数代替循环
+1. **Always check bounds**: validate index before array access
+2. **Type consistency**: keep array element types consistent
+3. **Choose appropriate structure**: select Array/Map/Matrix by need
+4. **Avoid modifying while iterating**: use a temporary array
+5. **Mind performance**: know the complexity of operations
+6. **Handle na values**: use nz() or explicit checks
+7. **Preallocate size**: when the size is known
+8. **Batch operations**: use built-ins instead of manual loops
 
-记住：**选择正确的数据结构是高效代码的基础！**
+Remember: **Choosing the right data structure is the foundation of efficient code!**

@@ -1,101 +1,101 @@
-# 重绘错误反例
+# Repainting Errors Anti-Patterns
 
-重绘是 Pine Script 中最常见且最难发现的问题之一。以下是最容易导致重绘的错误模式。
+Repainting is one of the most common and hardest-to-detect issues in Pine Script. The following are error patterns that most easily cause repainting.
 
-## 1. request.security() 未来泄漏
+## 1. request.security() Future Leak
 
-### ❌ 错误示例：直接使用实时数据
+### ❌ Incorrect example: using live data directly
 ```pine
 //@version=6
-indicator("错误：未来泄漏", overlay=true)
+indicator("Error: Future leak", overlay=true)
 
-// ❌ 危险：会获取未完成的日线数据
+// ❌ Dangerous: will fetch unfinished daily data
 dailyClose = request.security(syminfo.tickerid, "D", close)
 
-// 在当前K线显示明天的日线数据
-plot(dailyClose, "日线收盘", color.red, 2)
+// Display tomorrow's daily data on the current bar
+plot(dailyClose, "Daily close", color.red, 2)
 
-// 基于未来数据的信号
+// Signals based on future data
 buySignal = close > dailyClose
 plotshape(buySignal, style=shape.triangleup, location=location.belowbar)
 ```
 
-### 🚨 问题说明
-- `request.security()` 默认会返回当前周期的实时数据
-- 日线在完成前会不断变化，导致"未来数据"泄漏到当前
-- 信号在实时K线上会不断变化，历史表现看起来完美但实际不可行
+### 🚨 Problem explanation
+- `request.security()` by default returns live data for the current timeframe
+- Daily data changes until the bar is complete, causing "future data" to leak into the present
+- Signals on live bars keep changing; backtests look perfect but are not tradable
 
-### ✅ 正确做法：使用偏移
+### ✅ Correct approach: use an offset
 ```pine
 //@version=6
-indicator("正确：避免未来泄漏", overlay=true)
+indicator("Correct: Avoid future leak", overlay=true)
 
-// ✅ 安全：使用已确认的日线数据
+// ✅ Safe: use confirmed daily data
 dailyClose = request.security(
     syminfo.tickerid,
     "D",
-    close[1],  // 使用前一根已确认的日线
-    lookahead=barmerge.lookahead_on  // 明确设置lookahead
+    close[1],  // Use the previous confirmed daily bar
+    lookahead=barmerge.lookahead_on  // Explicitly set lookahead
 )
 
-// 仅显示已确认的数据
-plot(dailyClose, "日线收盘", color.blue, 2)
+// Show only confirmed data
+plot(dailyClose, "Daily close", color.blue, 2)
 
-// 基于历史数据的信号
+// Signals based on historical data
 buySignal = close > dailyClose
 plotshape(buySignal, style=shape.triangleup, location=location.belowbar)
 ```
 
-## 2. 实时K线上的信号重绘
+## 2. Signal Repainting on Live Bars
 
-### ❌ 错误示例：使用实时数据生成信号
+### ❌ Incorrect example: generating signals from live data
 ```pine
 //@version=6
-indicator("错误：实时信号重绘")
+indicator("Error: Live signal repainting")
 
-// ❌ 使用实时close值（会在实时K线上变化）
+// ❌ Using live close values (changes on live bars)
 rsi = ta.rsi(close, 14)
 oversoldSignal = ta.crossunder(rsi, 30)
 
-// 信号会在实时K线上反复出现和消失
-plotshape(oversoldSignal, "超卖信号",
+// The signal repeatedly appears/disappears on live bars
+plotshape(oversoldSignal, "Oversold signal",
           style=shape.labelup, location=location.belowbar)
 
-// 基于实时信号的入场标记
+// Entry labels based on live signals
 if oversoldSignal
-    label.new(bar_index, low, "买入", color.green)
+    label.new(bar_index, low, "Buy", color.green)
 ```
 
-### 🚨 问题说明
-- `close` 在实时K线上会不断变化
-- RSI值会随之变化，导致信号反复触发
-- 标签会随着信号出现和消失，造成混乱
+### 🚨 Problem explanation
+- `close` changes continuously on live bars
+- RSI values change accordingly, causing signals to trigger repeatedly
+- Labels appear and disappear with the signal, causing confusion
 
-### ✅ 正确做法：等待K线确认
+### ✅ Correct approach: wait for bar confirmation
 ```pine
 //@version=6
-indicator("正确：确认信号")
+indicator("Correct: Confirmed signal")
 
-// ✅ 使用barstate.isconfirmed确保K线完成
+// ✅ Use barstate.isconfirmed to ensure bar completion
 rsi = ta.rsi(close, 14)
 oversoldSignal = ta.crossunder(rsi[1], 30) and barstate.isconfirmed
 
-// 信号只会在K线收盘时触发一次
-plotshape(oversoldSignal, "超卖信号",
+// Signal only triggers once at bar close
+plotshape(oversoldSignal, "Oversold signal",
           style=shape.labelup, location=location.belowbar)
 
-// 使用var避免标签重绘
+// Use var to avoid label repainting
 var label buyLabel = na
 if oversoldSignal
     if na(buyLabel)
-        buyLabel := label.new(bar_index, low, "买入", color.green)
+        buyLabel := label.new(bar_index, low, "Buy", color.green)
 else
     if not na(buyLabel)
         label.delete(buyLabel)
         buyLabel := na
 ```
 
-## 3. Dynamic support/resistance repainting
+## 3. Dynamic Support/Resistance Repainting
 
 ### ❌ Incorrect example: dynamically adjusting historical levels
 ```pine
@@ -146,7 +146,7 @@ plot(resistanceLevel, "Resistance", color.red, style=plot.style_linebr)
 plot(supportLevel, "Support", color.green, style=plot.style_linebr)
 ```
 
-## 4. Using future data in calculations
+## 4. Using Future Data in Calculations
 
 ### ❌ Incorrect example: using future values on live bars
 ```pine
@@ -195,7 +195,7 @@ breakout = ta.crossover(close, upperBand)
 plotshape(breakout, "Breakout", style=shape.triangleup)
 ```
 
-## 5. Multi-timeframe repainting
+## 5. Multi-Timeframe Repainting
 
 ### ❌ Incorrect example: mixing timeframes leads to inconsistency
 ```pine
@@ -252,7 +252,7 @@ bgcolor(not na(alignment) ?
 plotshape(alignment, "Alignment signal", style=shape.circle)
 ```
 
-## 6. Circular references causing repainting
+## 6. Circular References Causing Repainting
 
 ### ❌ Incorrect example: circular dependency
 ```pine
@@ -293,7 +293,7 @@ smoothValue = array.avg(rawHistory)
 plot(smoothValue, "Smoothed value", color.blue)
 ```
 
-## 7. timenow misuse
+## 7. timenow Misuse
 
 ### ❌ Incorrect example: using current time
 ```pine
@@ -314,41 +314,41 @@ if isSessionEnd
 ### 🚨 Problem explanation
 - `timenow` is the script's real-time clock
 - It constantly changes on live bars
-- 历史K线上的判断也会随着时间推移而改变
+- Judgments on historical bars also change as time passes
 
-### ✅ 正确做法：使用K线时间
+### ✅ Correct approach: use bar time
 ```pine
 //@version=6
-indicator("正确：K线时间")
+indicator("Correct: Bar time")
 
-// ✅ 使用K线自己的时间
+// ✅ Use the bar's own time
 isSessionEnd = hour(time) >= 15 and minute(time) >= 30
 
-// 判断基于K线时间，固定不变
+// The judgment is based on bar time and is fixed
 bgcolor(isSessionEnd ? color.green : na)
 
-// 只在最后一根K线显示实时信息
+// Show real-time info only on the last bar
 if barstate.islast
     label.new(bar_index, high,
-              "当前时间: " + str.format("{0,time,HH:mm}", timenow),
+              "Current time: " + str.format("{0,time,HH:mm}", timenow),
               color.blue)
 ```
 
-## 检查重绘的清单
+## Checklist for Repainting
 
-1. **是否使用 request.security() 而没有偏移？**
-2. **是否在实时K线上使用 close/high/low？**
-3. **是否等待 barstate.isconfirmed？**
-4. **是否使用 timenow 进行历史判断？**
-5. **是否有循环依赖的变量？**
-6. **是否混合不同更新频率的数据？**
+1. **Using request.security() without an offset?**
+2. **Using close/high/low on live bars?**
+3. **Waiting for barstate.isconfirmed?**
+4. **Using timenow for historical judgments?**
+5. **Variables with circular dependencies?**
+6. **Mixing data with different update frequencies?**
 
-## 避免重绘的黄金法则
+## Golden Rules to Avoid Repainting
 
-1. **总是使用偏移**：`value[1]` 是你的朋友
-2. **等待确认**：`barstate.isconfirmed` 是安全锁
-3. **固定历史**：历史数据不应该改变
-4. **避免 timenow**：除非只用于最后一根K线
-5. **明确 lookahead**：清楚了解 request.security 的行为
+1. **Always use offsets**: `value[1]` is your friend
+2. **Wait for confirmation**: `barstate.isconfirmed` is the safety lock
+3. **Fix history**: historical data should not change
+4. **Avoid timenow**: unless used only on the last bar
+5. **Be explicit about lookahead**: understand request.security behavior
 
-记住：**如果回测结果看起来太美好，很可能存在重绘问题！**
+Remember: **If backtest results look too good to be true, repainting likely exists!**
