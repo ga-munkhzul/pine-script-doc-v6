@@ -1,63 +1,63 @@
-# 跨周期数据请求决策树
+# Multi-timeframe Data Request Decision Tree
 
-## 📊 起始问题：我需要从其他时间框架获取数据吗？
+## 📊 Starting question: Do I need data from another timeframe?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│   ⏰ 跨周期数据：request.security() 使用指南         │
-│   • 高时间框架分析 • 低时间框架细节 • 多周期确认     │
+│   ⏰ Multi-timeframe data: request.security() guide  │
+│   • Higher TF analysis • Lower TF precision • MTF confirm │
 └─────────────────────────────────────────────────────┘
     │
-    └─ 🎯 为什么需要跨周期数据？
+    └─ 🎯 Why do I need multi-timeframe data?
         │
-        ├─ 需要更高时间框架的趋势方向
-        │   └─ ➡️ **趋势过滤**
+        ├─ Need higher timeframe trend direction
+        │   └─ ➡️ **Trend filter**
         │
-        ├─ 需要更低时间框架的精确入场
-        │   └─ ➡️ **精确时机**
+        ├─ Need lower timeframe precise entries
+        │   └─ ➡️ **Precise timing**
         │
-        ├─ 需要多周期确认信号
-        │   └─ ➡️ **信号确认**
+        ├─ Need multi-timeframe confirmation
+        │   └─ ➡️ **Signal confirmation**
         │
-        └─ 需要不同周期的指标值
-            └─ ➡️ **指标对比**
+        └─ Need indicator values from different TFs
+            └─ ➡️ **Indicator comparison**
 ```
 
-## 📈 高时间框架数据获取
+## 📈 Higher timeframe data
 
 ```
-┌─ 需求：获取高时间框架数据（如日线、周线）
+┌─ Need: fetch higher timeframe data (e.g., Daily/Weekly)
 │
-├─ 🔧 基础语法
+├─ 🔧 Basic syntax
 │   │
 │   └─ ```pine
 │       data = request.security(
-│           symbol,        // 交易品种
-│           timeframe,     // 目标时间框架
-│           expression,    // 要获取的数据
-│           gaps,          // 缺失数据处理
-│           lookahead      // 未来数据处理
+│           symbol,        // symbol
+│           timeframe,     // target timeframe
+│           expression,    // data to fetch
+│           gaps,          // missing data handling
+│           lookahead      // future data handling
 │       )
 │       ```
 │
-├─ 📊 常用场景
+├─ 📊 Common scenarios
 │   │
-│   ├─ 趋势方向判断
+│   ├─ Trend direction
 │   │   ```pine
-│   │   // 获取日线MA判断大趋势
+│   │   // Use daily MA to determine higher trend
 │   │   dailyMA200 = request.security(
 │   │       syminfo.tickerid,
 │   │       "1D",
 │   │       ta.sma(close, 20)
 │   │   )
 │   │
-│   │   // 只在大趋势向上时做多
+│   │   // Only go long when higher trend is up
 │   │   buySignal = close > ta.sma(close, 20) and close > dailyMA200
 │   │   ```
 │   │
-│   ├─ 关键价格水平
+│   ├─ Key price levels
 │   │   ```pine
-│   │   // 获取日线支撑阻力
+│   │   // Fetch daily support/resistance
 │   │   dailyHigh = request.security(
 │   │       syminfo.tickerid, "1D", high
 │   │   )
@@ -65,34 +65,34 @@
 │   │       syminfo.tickerid, "1D", low
 │   │   )
 │   │
-│   │   plot(dailyHigh, "日高", color.red)
-│   │   plot(dailyLow, "日低", color.green)
+│   │   plot(dailyHigh, "Daily High", color.red)
+│   │   plot(dailyLow, "Daily Low", color.green)
 │   │   ```
 │   │
-│   └─ 指标确认
+│   └─ Indicator confirmation
 │       ```pine
-│       // 获取日线RSI
+│       // Fetch daily RSI
 │       dailyRSI = request.security(
 │           syminfo.tickerid, "1D",
 │           ta.rsi(close, 14)
 │       )
 
-│       // 多周期信号确认
+│       // Multi-timeframe confirmation
 │       m5Buy = ta.rsi(close, 14) < 30
 │       d1TrendUp = dailyRSI > 50
 │       finalBuy = m5Buy and d1TrendUp
 │       ```
 │
-├─ ⚠️ 安全使用要点
+├─ ⚠️ Safe usage tips
 │   │
-│   ├─ 避免未来泄漏
+│   ├─ Avoid future leaks
 │   │   ```pine
-│   │   // ❌ 危险：可能未来泄漏
+│   │   // ❌ Danger: possible future leak
 │   │   dailyClose = request.security(
 │   │       syminfo.tickerid, "1D", close
 │   │   )
 
-│   │   // ✅ 安全：使用偏移
+│   │   // ✅ Safe: use offset
 │   │   dailyClose = request.security(
 │   │       syminfo.tickerid, "1D",
 │   │       close[1],
@@ -100,9 +100,9 @@
 │   │   )
 │   │   ```
 │   │
-│   ├─ 处理缺失数据
+│   ├─ Handle missing data
 │   │   ```pine
-│   │   // 处理数据缺失
+│   │   // Handle missing data
 │   │   weeklyData = request.security(
 │   │       syminfo.tickerid, "W",
 │   │       close,
@@ -110,13 +110,13 @@
 │   │       lookahead=barmerge.lookahead_on
 │   │   )
 │   │
-│   │   // 使用 nz() 处理 na 值
+│   │   // Use nz() to handle na values
 │   │   weeklyPrice = nz(weeklyData, close)
 │   │   ```
 │   │
-│   └─ 缓存优化
+│   └─ Caching optimization
 │       ```pine
-│       // 缓存高时间框架数据
+│       // Cache higher timeframe data
 │       var float dailyMA = na
 │       if ta.change(time("D"))
 │           dailyMA := request.security(
@@ -125,38 +125,38 @@
 │           )
 │       ```
 │
-└─ 🎯 最佳实践
-    ├─ 使用 lookahead=barmerge.lookahead_on
+└─ 🎯 Best practices
+    ├─ Use lookahead=barmerge.lookahead_on
     │   ```pine
-    │   // 明确使用 lookahead
+    │   // Explicitly set lookahead
     │   data = request.security(..., lookahead=barmerge.lookahead_on)
     │   ```
     │
-    ├─ 添加偏移保证安全
+    ├─ Add offset for safety
     │   ```pine
-    │   // 添加 [1] 偏移
+    │   // Add [1] offset
     │   safeData = request.security(..., close[1])
     │   ```
     │
-    └─ 验证数据有效性
+    └─ Validate data
         ```pine
-        // 检查数据有效性
+        // Check data validity
         htfData = request.security(...)
         if not na(htfData)
-            // 使用数据
+            // use data
         ```
 ```
 
-## 📉 低时间框架数据获取
+## 📉 Lower timeframe data
 
 ```
-┌─ 需求：获取低时间框架数据（如秒级、tick级）
+┌─ Need: fetch lower timeframe data (e.g., seconds/ticks)
 │
-├─ 📊 使用场景
+├─ 📊 Use cases
 │   │
-│   ├─ 精确入场时机
+│   ├─ Precise entry timing
 │   │   ```pine
-│   │   // 在1分钟图表上获取15秒数据
+│   │   // On 1-minute chart, fetch 15-second data
 │   │   sec15High = request.security(
 │   │       syminfo.tickerid, "15S",
 │   │       high,
@@ -164,136 +164,136 @@
 │   │       lookahead=barmerge.lookahead_off
 │   │   )
 
-│   │   // 突破15秒高点入场
+│   │   // Enter on breakout of 15-second high
 │   │   if ta.crossover(close, sec15High)
 │   │       strategy.entry("Long", strategy.long)
 │   │   ```
 │   │
-│   ├─ 微观结构分析
+│   ├─ Microstructure analysis
 │   │   ```pine
-│   │   // 获取tick数据（如果可用）
+│   │   // Get tick data (if available)
 │   │   tickVolume = request.security(
 │   │       syminfo.tickerid, "1S",
 │   │       volume,
 │   │       gaps=barmerge.gaps_off
 │   │   )
 
-│   │   // 分析短期成交量突增
+│   │   // Detect short-term volume spikes
 │   │   volumeSpike = tickVolume > ta.sma(tickVolume, 10) * 3
 │   │   ```
 │   │
-│   └─ 剥头皮策略
+│   └─ Scalping strategy
 │       ```pine
-│       // 快速进出策略
+│       // Quick in-out strategy
 │       sec5Close = request.security(
 │           syminfo.tickerid, "5S",
 │           close[1]
 │       )
 
-│       // 快速均线交叉
+│       // Fast MA crossover
 │       sec5MA = ta.sma(sec5Close, 10)
 │       if ta.crossover(sec5Close, sec5MA)
 │           strategy.entry("Scalp", strategy.long)
 │           strategy.exit("Exit", "Scalp", bars_after_entry=2)
 │       ```
 │
-├─ ⚡ 性能优化
+├─ ⚡ Performance optimization
 │   │
-│   ├─ 减少请求频率
+│   ├─ Reduce request frequency
 │   │   ```pine
-│   │   // 只在需要时请求
+│   │   // Request only when needed
 │   │   var float lowTFData = na
 │   │   if condition and barstate.isconfirmed
 │   │       lowTFData := request.security(...)
 │   │   ```
 │   │
-│   ├─ 使用 gaps=barmerge.gaps_off
+│   ├─ Use gaps=barmerge.gaps_off
 │   │   ```pine
-│   │   // 低时间框架数据通常有缺失
+│   │   // Low timeframe data often has gaps
 │   │   data = request.security(
 │   │       ..., gaps=barmerge.gaps_off
 │   │   )
 │   │   ```
 │   │
-│   └─ 批量获取
+│   └─ Batch fetching
 │       ```pine
-│       // 一次请求多个值
+│       // Request multiple values at once
 │       [high5, low5, close5] = request.security(
 │           syminfo.tickerid, "5S",
 │           [high, low, close]
 │       )
 │       ```
 │
-└─ ⚠️ 注意事项
-    ├─ 数据可用性
-    │   - 不是所有时间框架都可用
-    │   - 取决于数据源
+└─ ⚠️ Notes
+    ├─ Data availability
+    │   - Not all timeframes are available
+    │   - Depends on data source
     │
-    ├─ 计算负荷
-    │   - 低时间框架数据量大
-    │   - 可能影响性能
+    ├─ Compute load
+    │   - Low timeframe data is large
+    │   - May impact performance
     │
-    └─ 实时性
-        - 低时间框架数据延迟更高
-        - 考虑实际应用场景
+    └─ Real-time considerations
+        - Higher latency on very low TF
+        - Consider real usage context
 ```
 
-## 🔄 多周期确认策略
+## 🔄 Multi-timeframe confirmation strategy
 
 ```
-┌─ 需求：多时间框架信号确认
+┌─ Need: multi-timeframe signal confirmation
 │
-├─ 📊 策略框架
+├─ 📊 Strategy framework
 │   └─ ```pine
 │       //@version=6
-│       strategy("多周期确认策略")
+│       strategy("Multi-timeframe Confirmation Strategy")
 │
-│       // 获取多个时间框架数据
+│       // Fetch multiple timeframe data
 │       h1_trend = request.security("1", "60", ta.ema(close, 50))
 │       h4_trend = request.security("1", "240", ta.ema(close, 50))
 │       d1_trend = request.security("1", "D", ta.ema(close, 50))
 │
-│       // 多周期趋势判断
+│       // Multi-timeframe trend
 │       trend_up = close > h1_trend and close > h4_trend and close > d1_trend
 │       trend_down = close < h1_trend and close < h4_trend and close < d1_trend
 │
-│       // 当前周期信号
+│       // Current timeframe signal
 │       m5_signal = ta.rsi(close, 14) < 30
 │
-│       // 多周期确认
+│       // Confirmed by higher TF trend
 │       if m5_signal and trend_up
 │           strategy.entry("Long", strategy.long)
 │       ```
 │
-├─ 🎯 确认级别
+├─ 🎯 Confirmation levels
 │   │
-│   ├─ 强确认（所有周期一致）
+│   ├─ Strong confirmation (all TF align)
 │   │   ```pine
-│       // 三个周期全部看涨
+│       // All three TF bullish
 │       strongBuy = m5_rsi < 30 and h1_rsi < 30 and h4_rsi < 30
 │       ```
 │   │
-│   ├─ 中等确认（多数周期一致）
+│   ├─ Medium confirmation (majority agree)
 │   │   ```pine
-│       // 两个周期看涨即可
+│       // Any two TF bullish
 │       mediumBuy = (m5_rsi < 30 and h1_rsi < 30) or
 │                   (m5_rsi < 30 and h4_rsi < 30) or
 │                   (h1_rsi < 30 and h4_rsi < 30)
 │       ```
 │   │
-│   └─ 弱确认（高周期主导）
+│   └─ Weak confirmation (higher TF leads)
 │       ```pine
-│       // 只要高周期看涨
+│       // As long as higher TF is bullish
 │       weakBuy = d1_trend_up and m5_signal
 │       ```
 │
-├─ 📈 动态时间框架选择
+├─ 📈 Dynamic timeframe selection
 │   └─ ```pine
-│       // 根据波动率选择时间框架
+│       // Choose timeframe based on volatility
 │       atr = ta.atr(14)
 │       volatility_level = atr / close * 100
 
-│       // 高波动使用更长周期
+│       // Use longer period for high volatility
 │       htf_period = volatility_level > 2 ? "4H" : "1H"
 
 │       htf_data = request.security(
@@ -303,120 +303,120 @@
 │       )
 │       ```
 │
-└─ 💡 实用技巧
-    ├─ 使用评分系统
+└─ 💡 Practical tips
+    ├─ Use a scoring system
     │   ```pine
-    │   // 多周期评分
+    │   // Multi-timeframe scoring
     │   score = 0
     │   if m5_condition => score += 1
     │   if h1_condition => score += 2
     │   if h4_condition => score += 3
     │   if d1_condition => score += 4
 
-    │   // 根据评分决定
+    │   // Decide based on score
     │   if score >= 7
     │       strategy.entry(...)
     │   ```
     │
-    ├─ 时间框架过滤器
+    ├─ Timeframe filter
     │   ```pine
-    │   // 根据时间框架调整策略
+    │   // Adjust strategy based on timeframe
     │   currentTF = timeframe.period
     │   isHigherTF = currentTF in ["60", "240", "D"]
     │
     │   if isHigherTF
-    │       // 使用更宽松的条件
+    │       // Use looser conditions
     │       threshold = 25
     │   else
-    │       // 使用更严格的条件
+    │       // Use stricter conditions
     │       threshold = 20
     │   ```
     │
-    └─ 渐进式确认
+    └─ Progressive confirmation
         ```pine
-        // 逐步确认
+        // Step-by-step confirmation
         if m5_signal
-            // 第一级：基础信号
+            // Level 1: Basic signal
             plotshape(1, "L1", style=shape.circle)
 
         if m5_signal and h1_confirm
-            // 第二级：1小时确认
+            // Level 2: 1H confirmation
             plotshape(2, "L2", style=shape.square)
 
         if m5_signal and h1_confirm and h4_confirm
-            // 第三级：4小时确认
+            // Level 3: 4H confirmation
             plotshape(3, "L3", style=shape.diamond)
         ```
 ```
 
-## 📊 request.security() 参数详解
+## 📊 request.security() parameters explained
 
 ```
-┌─ 参数详解
+┌─ Parameter details
 │
-├─ symbol（交易品种）
+├─ symbol (instrument)
 │   │
-│   ├─ 使用当前品种
+│   ├─ Use current instrument
 │   │   ```pine
 │   │   syminfo.tickerid
 │   │   ```
 │   │
-│   ├─ 指定其他品种
+│   ├─ Specify another instrument
 │   │   ```pine
 │   │   "NASDAQ:AAPL"
 │   │   "BINANCE:BTCUSDT"
 │   │   ```
 │   │
-│   └─ 动态品种
+│   └─ Dynamic instrument
 │       ```pine
-│       // 根据输入选择品种
+│       // Choose instrument based on input
 │       sym = input.symbol("NASDAQ:TSLA")
 │       data = request.security(sym, "D", close)
 │       ```
 │
-├─ timeframe（时间框架）
+├─ timeframe (time frame)
 │   │
-│   ├─ 预定义时间框架
+│   ├─ Predefined timeframes
 │   │   ```pine
 │   │   "1", "5", "15", "30", "60", "240", "D", "W", "M"
 │   │   ```
 │   │
-│   ├─ 自定义时间框架
+│   ├─ Custom timeframes
 │   │   ```pine
-│   │   "120"     // 2小时
-│   │   "720"     // 12小时
-│   │   "3D"      // 3天
-│   │   "2W"      // 2周
+│   │   "120"     // 2 hours
+│   │   "720"     // 12 hours
+│   │   "3D"      // 3 days
+│   │   "2W"      // 2 weeks
 │   │   ```
 │   │
-│   └─ 相对时间框架
+│   └─ Relative timeframe
 │       ```pine
-│       // 当前时间框架的倍数
+│       // Multiple of current timeframe
 │       multiplier = 4
 │       htfTimeframe = str.tostring(timeframe.multiplier * multiplier)
 │       ```
 │
-├─ expression（数据表达式）
+├─ expression (data expression)
 │   │
-│   ├─ 基础数据
+│   ├─ Basic data
 │   │   ```pine
 │   │   close, high, low, open, volume
 │   │   ```
 │   │
-│   ├─ 指标计算
+│   ├─ Indicator calculations
 │   │   ```pine
 │   │   ta.sma(close, 20)
 │   │   ta.rsi(close, 14)
 │   │   ta.macd(close, 12, 26, 9)
 │   │   ```
 │   │
-│   ├─ 复合表达式
+│   ├─ Composite expressions
 │   │   ```pine
 │   │   ta.sma(close, 20) > ta.sma(close, 50)
 │   │   ta.rsi(close, 14) > 50
 │   │   ```
 │   │
-│   └─ 多值返回
+│   └─ Multiple return values
 │       ```pine
 │       [ma20, ma50] = request.security(
 │           syminfo.tickerid, "D",
@@ -424,45 +424,45 @@
 │       )
 │       ```
 │
-├─ gaps（缺失数据处理）
+├─ gaps (missing data handling)
 │   │
 │   ├─ barmerge.gaps_on
-│   │   - 返回 na 值
-│   │   - 适合需要知道数据缺失的场景
+│   │   - Returns na values
+│   │   - Suitable when you need to know data is missing
 │   │
 │   ├─ barmerge.gaps_off
-│   │   - 返回最后一个有效值
-│   │   - 适合连续数据
+│   │   - Returns the last valid value
+│   │   - Suitable for continuous data
 │   │
-│   └─ 选择建议
+│   └─ Selection advice
 │       ```pine
-│       // 高时间框架数据用 gaps_on
+│       // Use gaps_on for higher timeframe data
 │       dailyData = request.security(..., gaps=barmerge.gaps_on)
 
-│       // 低时间框架数据用 gaps_off
+│       // Use gaps_off for lower timeframe data
 │       tickData = request.security(..., gaps=barmerge.gaps_off)
 │       ```
 │
-└─ lookahead（未来数据处理）
+└─ lookahead (future data handling)
     │
     ├─ barmerge.lookahead_on
-    │   - 允许访问未来数据（当前周期未完成的数据）
-    │   - 可能导致重绘
+    │   - Allows accessing future data (data from the current unfinished bar)
+    │   - May cause repainting
     │
     ├─ barmerge.lookahead_off
-    │   - 只访问已确认数据
-    │   - 避免重绘
+    │   - Only access confirmed data
+    │   - Avoids repainting
     │
-    └─ 安全建议
+    └─ Safety advice
         ```pine
-        // 大多数情况使用 lookahead_on + 偏移
+        // In most cases, use lookahead_on + offset
         data = request.security(
             syminfo.tickerid, "D",
             close[1],
             lookahead=barmerge.lookahead_on
         )
 
-        // 需要绝对避免重绘时
+        // When you must absolutely avoid repainting
         data = request.security(
             syminfo.tickerid, "D",
             close,
@@ -471,17 +471,17 @@
         ```
 ```
 
-## ⚠️ 常见问题和解决方案
+## ⚠️ Common issues and solutions
 
-### 问题1：重绘问题
+### Issue 1: Repainting
 ```pine
-// ❌ 导致重绘
+// ❌ Causes repainting
 dailyClose = request.security(syminfo.tickerid, "D", close)
 
-// ✅ 解决方案1：使用偏移
+// ✅ Solution 1: use offset
 dailyClose = request.security(syminfo.tickerid, "D", close[1])
 
-// ✅ 解决方案2：使用 lookahead_off
+// ✅ Solution 2: use lookahead_off
 dailyClose = request.security(
     syminfo.tickerid, "D",
     close,
@@ -489,71 +489,71 @@ dailyClose = request.security(
 )
 ```
 
-### 问题2：性能问题
+### Issue 2: Performance
 ```pine
-// ❌ 每次都请求
+// ❌ Request on every bar
 if condition
     data = request.security(...)
 
-// ✅ 缓存数据
+// ✅ Cache data
 var float cachedData = na
-if ta.change(time("D"))  // 每天更新一次
+if ta.change(time("D"))  // Update once per day
     cachedData := request.security(...)
 ```
 
-### 问题3：数据不连续
+### Issue 3: Data discontinuity
 ```pine
-// ❌ 直接使用可能导致错误
+// ❌ Direct use may lead to errors
 weeklyData = request.security(...)
 
-// ✅ 处理 na 值
+// ✅ Handle na values
 weeklyData = request.security(..., gaps=barmerge.gaps_on)
 cleanData = nz(weeklyData, defaultValue)
 ```
 
-### 问题4：时间框架不匹配
+### Issue 4: Timeframe mismatch
 ```pine
-// ❌ 在非标准时间框架可能失败
+// ❌ May fail on non-standard timeframes
 data = request.security(syminfo.tickerid, "45", close)
 
-// ✅ 使用标准时间框架
+// ✅ Use a standard timeframe
 data = request.security(syminfo.tickerid, "60", close)
 ```
 
-## 📋 最佳实践总结
+## 📋 Best practices summary
 
-1. **总是考虑重绘风险**
-   - 优先使用偏移 [1]
-   - 明确设置 lookahead 参数
+1. **Always consider repainting risk**
+   - Prefer using offset [1]
+   - Explicitly set the lookahead parameter
 
-2. **优化性能**
-   - 缓存高时间框架数据
-   - 减少不必要的请求
-   - 批量获取多个值
+2. **Optimize performance**
+   - Cache higher timeframe data
+   - Reduce unnecessary requests
+   - Batch fetch multiple values
 
-3. **处理数据质量**
-   - 检查 na 值
-   - 设置合适的 gaps 参数
-   - 验证数据有效性
+3. **Handle data quality**
+   - Check na values
+   - Set appropriate gaps parameter
+   - Validate data validity
 
-4. **设计合理的策略**
-   - 不要过度依赖高时间框架
-   - 考虑数据延迟
-   - 平衡复杂性和效果
+4. **Design sensible strategies**
+   - Don't over-rely on higher timeframes
+   - Consider data latency
+   - Balance complexity and effectiveness
 
-5. **测试和验证**
-   - 在历史数据上测试
-   - 观察实时表现
-   - 注意不同市场的差异
+5. **Testing and validation**
+   - Test on historical data
+   - Observe real-time performance
+   - Mind differences across markets
 
-## 💡 快速参考表
+## 💡 Quick reference table
 
-| 场景 | 推荐参数设置 |
+| Scenario | Recommended parameter settings |
 |------|-------------|
-| 趋势过滤 | `close[1]`, `lookahead_on`, `gaps_on` |
-| 精确入场 | `close`, `lookahead_off`, `gaps_off` |
-| 指标对比 | `ta.indicator()[1]`, `lookahead_on` |
-| 数据缓存 | 使用 `var` 变量存储 |
-| 多品种 | 指定完整symbol路径 |
+| Trend filter | `close[1]`, `lookahead_on`, `gaps_on` |
+| Precise entry | `close`, `lookahead_off`, `gaps_off` |
+| Indicator comparison | `ta.indicator()[1]`, `lookahead_on` |
+| Data caching | Use `var` variable to store |
+| Multiple symbols | Specify full symbol path |
 
-记住：**跨周期数据强大但需要谨慎使用，始终考虑重绘风险和性能影响**。
+Remember: Multi-timeframe data is powerful but requires caution—always consider repainting risk and performance impact.

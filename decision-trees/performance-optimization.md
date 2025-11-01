@@ -1,228 +1,228 @@
-# 性能优化决策树
+# Performance Optimization Decision Tree
 
-## ⚡ 起始问题：脚本运行缓慢或达到计算限制？
+## ⚡ Starting question: Is the script slow or hitting computation limits?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│   ⚠️ Pine Script 性能限制：                         │
-│   • 循环最多100次迭代                               │
-│   • 请求.security() 限制调用频率                   │
-│   • 每个脚本有计算时间限制                          │
-│   • 绘图对象数量限制（标签、线条等）               │
+│   ⚠️ Pine Script performance limits:               │
+│   • Loops: at most 100 iterations                   │
+│   • request.security() call frequency limits        │
+│   • Each script has a compute time limit            │
+│   • Drawing object limits (labels, lines, etc.)     │
 └─────────────────────────────────────────────────────┘
     │
-    └─ 🔍 症状识别？
+    └─ 🔍 Identify the symptom?
         │
-        ├─ 循环报错/限制错误
-        │   └─ ➡️ **跳转到循环优化**
+        ├─ Loop errors/limit errors
+        │   └─ ➡️ **Go to Loop optimization**
         │
-        ├─ 脚本加载慢
-        │   └─ ➡️ **跳转到计算优化**
+        ├─ Script loads slowly
+        │   └─ ➡️ **Go to Compute optimization**
         │
-        ├─ 图表显示慢
-        │   └─ ➡️ **跳转到绘图优化**
+        ├─ Chart renders slowly
+        │   └─ ➡️ **Go to Plotting optimization**
         │
-        └─ 多时间框架数据慢
-            └─ ➡️ **跳转到跨周期优化**
+        └─ Multi-timeframe data is slow
+            └─ ➡️ **Go to Cross-timeframe optimization**
 ```
 
-## 🔄 循环优化路径
+## 🔄 Loop optimization path
 
 ```
-┌─ 问题：循环性能瓶颈
+┌─ Question: Loop performance bottleneck
 │
-├─ 📊 循环类型？
+├─ 📊 Loop type?
 │   │
-│   ├─ for 循环
-│   │   └─ 🔧 优化策略：
+│   ├─ for loop
+│   │   └─ 🔧 Optimization strategies:
 │   │       ```pine
-│   │       // ❌ 错误：不必要的长循环
+│   │       // ❌ Wrong: unnecessary long loop
 │   │       for i = 0 to 99
 │   │           array.push(arr, ta.sma(close, i + 1))
 │   │
-│   │       // ✅ 正确：使用内置函数
+│   │       // ✅ Correct: use built-in functions
 │   │       values = array.new<float>()
 │   │       array.push(values, ta.sma(close, 100))
 │   │       ```
 │   │
-│   ├─ while 循环
-│   │   └─ 🔧 优化策略：
+│   ├─ while loop
+│   │   └─ 🔧 Optimization strategies:
 │   │       ```pine
-│   │       // ❌ 危险：可能无限循环
+│   │       // ❌ Dangerous: possible infinite loop
 │   │       while condition
-│   │           // 处理
+│   │           // Handle
 │   │
-│   │       // ✅ 安全：添加计数器
+│   │       // ✅ Safe: add a counter
 │   │       counter = 0
 │   │       while condition and counter < 100
 │   │           counter += 1
 │   │       ```
 │   │
-│   └─ array 循环操作
-│       └─ 🔧 使用内置方法：
+│   └─ array loop operations
+│       └─ 🔧 Use built-in methods:
 │           ```pine
-           // ❌ 慢：手动遍历
+           // ❌ Slow: manual iteration
            sum = 0.0
            for i = 0 to array.size(arr) - 1
                sum += array.get(arr, i)
 
-           // ✅ 快：使用内置函数
+           // ✅ Fast: use built-in functions
            sum = array.sum(arr)
            avg = array.avg(arr)
 │           ```
 │
-├─ 💡 循环优化技巧
+├─ 💡 Loop optimization tips
 │   │
-│   ├─ 提前退出
+│   ├─ Early exit
 │   │   ```pine
-│   │   // 找到目标后立即退出
+│   │   // Exit immediately once target found
 │   │   for i = 0 to array.size(arr) - 1
 │   │       if array.get(arr, i) == target
 │   │           break
 │   │   ```
 │   │
-│   ├─ 减少循环内计算
+│   ├─ Reduce in-loop computation
 │   │   ```pine
-│   │   // ❌ 重复计算
+│   │   // ❌ Repeated calculation
 │   │   for i = 0 to len
 │   │       result = ta.sma(close, 20) * i
 │   │
-│   │   // ✅ 预计算
+│   │   // ✅ Precompute
 │   │   baseValue = ta.sma(close, 20)
 │   │   for i = 0 to len
 │   │       result = baseValue * i
 │   │   ```
 │   │
-│   ├─ 批量操作
+│   ├─ Batch operations
 │   │   ```pine
-│   │   // 使用 array.fill, array.slice 等批量方法
+│   │   // Use batch methods like array.fill, array.slice
 │   │   ```
 │   │
-│   └─ 缓存结果
+│   └─ Cache results
 │       ```pine
-│       // 使用 var 缓存计算结果
+│       // Cache results using var
 │       var cachedValue = na
 │       if na(cachedValue)
 │           cachedValue := expensiveCalculation()
 │       ```
 │
-└─ 📈 循环替代方案
-    ├─ 使用内置函数替代
-    ├─ 使用数学公式替代
-    └─ 使用向量化操作
+└─ 📈 Alternatives to loops
+    ├─ Use built-ins instead
+    ├─ Use math formulas instead
+    └─ Use vectorized operations
 ```
 
-## ⚙️ 计算优化路径
+## ⚙️ Compute optimization path
 
 ```
-┌─ 问题：脚本计算慢
+┌─ Question: Script computation is slow
 │
-├─ 🎯 计算频率优化
+├─ 🎯 Computation frequency optimization
 │   │
-│   ├─ 每个K线都计算？
-│   │   └─ 📝 检查 calc_on_every_tick
+│   ├─ Compute on every bar?
+│   │   └─ 📝 Check calc_on_every_tick
 │   │       ```pine
-│   │       // ❌ 实时每个tick都计算
-│   │       strategy("策略", calc_on_every_tick=true)
+│   │       // ❌ Recalculate on every tick in realtime
+│   │       strategy("Strategy", calc_on_every_tick=true)
 │   │
-│   │       // ✅ 仅在K线收盘时计算
-│   │       strategy("策略", calc_on_every_tick=false)
+│   │       // ✅ Compute only on bar close
+│   │       strategy("Strategy", calc_on_every_tick=false)
 │   │       ```
 │   │
-│   └─ 减少不必要的计算
+│   └─ Reduce unnecessary computation
 │       ```pine
-│       // ❌ 每次都计算
+│       // ❌ Compute every time
 │       ma20 = ta.sma(close, 20)
 │       ma50 = ta.sma(close, 50)
 │       ma200 = ta.sma(close, 200)
 │       even if not needed
 │
-│       // ✅ 条件计算
-│       ma20 = input.bool(true, "显示MA20") ? ta.sma(close, 20) : na
+│       // ✅ Conditional computation
+│       ma20 = input.bool(true, "Show MA20") ? ta.sma(close, 20) : na
 │       ```
 │
-├─ 📊 数学运算优化
+├─ 📊 Math operations optimization
 │   │
-│   ├─ 避免复杂运算
+│   ├─ Avoid complex operations
 │   │   ```pine
-│   │   // ❌ 慢：多次幂运算
+│   │   // ❌ Slow: repeated power operations
 │   │   result = math.pow(x, 2) + math.pow(y, 2)
 │   │
-│   │   // ✅ 快：直接乘法
+│   │   // ✅ Fast: direct multiplication
 │   │   result = x * x + y * y
 │   │   ```
 │   │
-│   ├─ 使用近似值
+│   ├─ Use approximations
 │   │   ```pine
-│   │   // ❌ 精确但慢
+│   │   // ❌ Precise but slow
 │   │   sqrt = math.sqrt(value)
 │   │
-│   │   // ✅ 近似但快
-│   │   sqrt = value * 0.5  // 某些场景下
+│   │   // ✅ Approximate but fast
+│   │   sqrt = value * 0.5  // in some contexts
 │   │   ```
 │   │
-│   └─ 避免类型转换
+│   └─ Avoid type conversions
 │       ```pine
-│       // ❌ 多次转换
+│       // ❌ Multiple conversions
 │       result = int(string(floatValue))
 │
-│       // ✅ 保持类型一致
+│       // ✅ Keep types consistent
 │       result = int(floatValue)
 │       ```
 │
-├─ 🔄 函数调用优化
+├─ 🔄 Function call optimization
 │   │
-│   ├─ 缓存函数结果
+│   ├─ Cache function results
 │   │   ```pine
-│   │   // ❌ 重复调用
+│   │   // ❌ Repeated calls
 │   │   plot(ta.rsi(close, 14))
 │   │   plot(ta.rsi(close, 14) - 30)
 │   │
-│   │   // ✅ 缓存结果
+│   │   // ✅ Cache result
 │   │   rsi14 = ta.rsi(close, 14)
 │   │   plot(rsi14)
 │   │   plot(rsi14 - 30)
 │   │   ```
 │   │
-│   ├─ 减少自定义函数调用
+│   ├─ Reduce custom function calls
 │   │   ```pine
-│   │   // ❌ 每次调用都计算
+│   │   // ❌ Recomputes on each call
 │   │   calculateMA() =>
 │   │       ta.sma(close, 20)
 │   │
-│   │   // ✅ 内联计算
+│   │   // ✅ Inline computation
 │   │   ma20 = ta.sma(close, 20)
 │   │   ```
 │   │
-│   └─ 使用高效算法
+│   └─ Use efficient algorithms
 │       ```pine
-       // 选择时间复杂度低的算法
+       // Choose algorithms with lower time complexity
 │       ```
 │
-└─ 📝 条件优化
-    ├─ 短路求值
+└─ 📝 Conditional optimization
+    ├─ Short-circuit evaluation
     │   ```pine
-    │   // ✅ 先判断轻量级条件
+    │   // ✅ Evaluate lightweight condition first
     │   if lightCondition and heavyCondition
-    │       // 处理
+    │       // Handle
     │   ```
     │
-    ├─ 减少嵌套
+    ├─ Reduce nesting
     │   ```pine
-    │   // ❌ 深层嵌套
+    │   // ❌ Deep nesting
     │   if a
     │       if b
     │           if c
-    │               // 处理
+    │               // Handle
     │
-    │   // ✅ 扁平结构
+    │   // ✅ Flatten structure
     │   if a and b and c
     │       // 处理
     │   ```
     │
-    └─ 使用 switch 代替多重 if
+    └─ Use switch instead of multiple ifs
         ```pine
-        // ✅ 更清晰高效
+        // ✅ Clearer and more efficient
         switch mode
             "MA" => ta.sma(close, len)
             "EMA" => ta.ema(close, len)
@@ -231,66 +231,66 @@
         ```
 ```
 
-## 🎨 绘图优化路径
+## 🎨 Plotting optimization path
 
 ```
-┌─ 问题：图表显示慢
+┌─ Question: Chart rendering is slow
 │
-├─ 📊 绘图对象数量
+├─ 📊 Number of drawing objects
 │   │
-│   ├─ plot 对象过多？
-│   │   └─ 📝 减少或合并
+│   ├─ Too many plot objects?
+│   │   └─ 📝 Reduce or merge
 │   │       ```pine
-│   │       // ❌ 多个独立plot
+│   │       // ❌ Multiple separate plots
 │   │       plot(ma20)
 │   │       plot(ma50)
 │   │       plot(ma200)
 │   │
-│   │       // ✅ 合并显示
+│   │       // ✅ Combine display
 │   │       plot(ma20, "MA20", color.blue)
 │   │       plot(ma50, "MA50", color.red)
-│   │       // 或使用 colors 参数
+│   │       // Or use the colors parameter
 │   │       ```
 │   │
-│   ├─ 标签/线条过多？
-│   │   └─ 📝 限制数量或清理
+│   ├─ Too many labels/lines?
+│   │   └─ 📝 Limit count or clean up
 │   │       ```pine
-│   │       // ❌ 无限制创建
+│   │       // ❌ Create without limit
 │   │       if condition
-│   │           label.new(bar_index, high, "标记")
+│   │           label.new(bar_index, high, "Label")
 │   │
-│   │       // ✅ 限制数量
+│   │       // ✅ Limit number
 │   │       var label[] labels = array.new<label>()
 │   │       if condition and array.size(labels) < 10
 │   │           array.push(labels, label.new(...))
 │   │
-│   │       // ✅ 清理旧标签
+│   │       // ✅ Clean old labels
 │   │       if barstate.isconfirmed
 │   │           label.delete(array.shift(labels))
 │   │       ```
 │   │
-│   └─ 表格更新频繁？
-│       └─ 📝 优化更新频率
+│   └─ Table updates too frequent?
+│       └─ 📝 Optimize update frequency
 │           ```pine
-│           // ❌ 每个tick都更新
+│           // ❌ Update on every tick
 │           if barstate.isrealtime
 │               table.cell(...)
 │
-│           // ✅ 仅在需要时更新
+│           // ✅ Update only when needed
 │           if condition and barstate.isconfirmed
 │               table.cell(...)
 │           ```
 │
-├─ 🎨 视觉效果优化
+├─ 🎨 Visual effects optimization
 │   │
-│   ├─ 复杂颜色计算
+│   ├─ Complex color computation
 │   │   ```pine
-│   │   // ❌ 每次都计算颜色
+│   │   // ❌ Compute color every time
 │   │   plotColor = rsi > 70 ? color.red :
 │   │               rsi < 30 ? color.green :
 │   │               color.blue
 │   │
-│   │   // ✅ 缓存颜色
+│   │   // ✅ Cache color
 │   │   var plotColor = color.blue
 │   │   if rsi > 70
 │   │       plotColor := color.red
@@ -298,201 +298,201 @@
 │   │       plotColor := color.green
 │   │   ```
 │   │
-│   ├─ 透明度渐变
+│   ├─ Opacity gradient
 │   │   ```pine
-│   │   // ❌ 复杂计算
+│   │   // ❌ Complex calculation
 │   │   alpha = math.abs(rsi - 50) * 2.55
 │   │
-│   │   // ✅ 使用阶梯值
+│   │   // ✅ Use step values
 │   │   alpha = rsi > 60 ? 80 : rsi < 40 ? 40 : 60
 │   │   ```
 │   │
-│   └─ 样式切换
+│   └─ Style switching
 │       ```pine
-       // 使用 style 参数优化显示
+       // Use style parameter to optimize display
        plot(value, style=plot.style_area)
 │       ```
 │
-└─ 📈 条件绘图
-    ├─ 减少不必要的绘制
+└─ 📈 Conditional plotting
+    ├─ Reduce unnecessary drawing
     │   ```pine
-    │   // ❌ 总是绘制
-    │   plot(signal, "信号")
+    │   // ❌ Always draw
+    │   plot(signal, "Signal")
     │
-    │   // ✅ 条件绘制
-    │   plot(showSignals ? signal : na, "信号")
+    │   // ✅ Conditional drawing
+    │   plot(showSignals ? signal : na, "Signal")
     │   ```
     │
-    └─ 使用 display 参数
+    └─ Use display parameter
         ```pine
-        // 控制显示范围
-        plot(ma, display=display.none)  // 仅在数据窗口显示
+        // Control display scope
+        plot(ma, display=display.none)  // Show in data window only
         ```
 ```
 
-## 📊 跨周期优化路径
+## 📊 Cross-timeframe optimization path
 
 ```
-┌─ 问题：request.security() 性能问题
+┌─ Question: request.security() performance issues
 │
-├─ 🔄 调用频率
+├─ 🔄 Call frequency
 │   │
-│   ├─ 每个K线都请求？
-│   │   └─ 📝 减少请求次数
+│   ├─ Request on every bar?
+│   │   └─ 📝 Reduce number of requests
 │   │       ```pine
-│   │       // ❌ 每次都请求
+│   │       // ❌ Request every time
 │   │       higherTF = request.security(..., close)
 │   │
-│   │       // ✅ 缓存结果
+│   │       // ✅ Cache result
 │   │       var higherTF = na
 │   │       if barstate.isconfirmed
 │   │           higherTF := request.security(..., close[1])
 │   │       ```
 │   │
-│   └─ 请求多个值？
-│       └─ 📝 批量请求
+│   └─ Request multiple values?
+│       └─ 📝 Batch requests
 │           ```pine
-│           // ❌ 多次请求
+│           // ❌ Multiple requests
 │           high_tf = request.security(..., high)
 │           low_tf = request.security(..., low)
 │           close_tf = request.security(..., close)
 │
-│           // ✅ 一次请求
+│           // ✅ Single request
 │           [h, l, c] = request.security(...,
 │               [high, low, close])
 │           ```
 │
-├─ 📊 请求的数据量
+├─ 📊 Amount of requested data
 │   │
-│   ├─ 请求长周期数据？
-│   │   └─ 📝 使用 lookahead=barmerge.lookahead_on
+│   ├─ Requesting long timeframe data?
+│   │   └─ 📝 Use lookahead=barmerge.lookahead_on
 │   │       ```pine
-│   │       // ✅ 明确设置lookahead
+│   │       // ✅ Explicitly set lookahead
 │   │       data = request.security(...,
 │           close,
 │           lookahead=barmerge.lookahead_on)
 │   │       ```
 │   │
-│   └─ 请求多个时间框架？
-│       └─ 📝 优先级排序
+│   └─ Request multiple timeframes?
+│       └─ 📝 Prioritize
 │           ```pine
-│           // 按重要性排序请求
+│           // Request in order of importance
 │           primary = request.security(..., primaryData)
 │           if time > lastRequestTime
 │               secondary = request.security(..., secondaryData)
 │           ```
 │
-└─ 💡 缓存策略
-    ├─ 使用 var 缓存
+└─ 💡 Caching strategies
+    ├─ Use var for caching
     │   ```pine
-    │   // 缓存跨周期数据
+    │   // Cache cross-timeframe data
     │   var cachedData = array.new<float>()
     │   ```
     │
-    ├─ 定时更新
+    ├─ Timed updates
     │   ```pine
-    │   // 每小时更新一次
+    │   // Update once per hour
     │   if ta.change(time('60'))
     │       cachedData := updateData()
     │   ```
     │
-    └─ 按需更新
+    └─ Update on demand
         ```pine
-        // 仅在需要时更新
+        // Update only when needed
         if needUpdate and barstate.isconfirmed
             updateData()
         ```
 ```
 
-## 🛠️ 通用优化策略
+## 🛠️ General optimization strategies
 
-### 1. 代码结构优化
+### 1. Code structure optimization
 ```pine
-// ❌ 分散计算
+// ❌ Scattered calculations
 a = calculateA()
 b = calculateB()
 c = calculateC()
 
-// ✅ 组织计算
+// ✅ Organize calculations
 calculateAll() =>
     [calculateA(), calculateB(), calculateC()]
 [a, b, c] = calculateAll()
 ```
 
-### 2. 数据结构优化
+### 2. Data structure optimization
 ```pine
-// ❌ 多个变量
+// ❌ Multiple variables
 var float val1 = na
 var float val2 = na
 var float val3 = na
 
-// ✅ 使用数组
+// ✅ Use arrays
 var values = array.new<float>(3, 0.0)
 ```
 
-### 3. 条件执行优化
+### 3. Conditional execution optimization
 ```pine
-// ❌ 总是执行
+// ❌ Always execute
 heavyCalculation()
 
-// ✅ 条件执行
+// ✅ Execute conditionally
 if needCalculation and barstate.isconfirmed
     heavyCalculation()
 ```
 
-## 📊 性能检测工具
+## 📊 Performance detection tools
 
-### 1. 内置检查
+### 1. Built-in checks
 ```pine
-// 检查计算时间
+// Check computation time
 start = timenow
 result = heavyCalculation()
 elapsed = timenow - start
-if elapsed > 100  // 超过100ms
-    label.new(bar_index, high, "慢计算: " + str.tostring(elapsed) + "ms")
+if elapsed > 100  // More than 100ms
+    label.new(bar_index, high, "Slow calc: " + str.tostring(elapsed) + "ms")
 ```
 
-### 2. 循环计数器
+### 2. Loop counter
 ```pine
-// 监控循环次数
+// Monitor loop iterations
 var loopCount = 0
 for i = 0 to array.size(arr) - 1
     loopCount += 1
     if loopCount > 90
-        runtime.error("接近循环限制！")
+        runtime.error("Approaching loop limit!")
 ```
 
-### 3. 内存使用检查
+### 3. Memory usage check
 ```pine
-// 检查数组大小
+// Check array size
 if array.size(hugeArray) > 10000
-    runtime.error("数组过大！")
+    runtime.error("Array too large!")
 ```
 
-## 💡 性能优化清单
+## 💡 Performance optimization checklist
 
-- [ ] 减少不必要的计算
-- [ ] 缓存重复使用的值
-- [ ] 优化循环（减少迭代次数）
-- [ ] 使用内置函数代替自定义实现
-- [ ] 限制绘图对象数量
-- [ ] 优化 request.security() 调用
-- [ ] 使用合适的数据结构
-- [ ] 条件执行重计算
-- [ ] 简化数学运算
-- [ ] 避免频繁的类型转换
-- [ ] 使用 var 持久化变量
-- [ ] 批量操作代替单个操作
+- [ ] Reduce unnecessary computation
+- [ ] Cache reused values
+- [ ] Optimize loops (reduce iterations)
+- [ ] Use built-in functions instead of custom implementations
+- [ ] Limit number of drawing objects
+- [ ] Optimize request.security() calls
+- [ ] Use appropriate data structures
+- [ ] Conditionally execute recomputations
+- [ ] Simplify mathematical operations
+- [ ] Avoid frequent type conversions
+- [ ] Use var for persistent variables
+- [ ] Batch operations instead of single operations
 
-## ⚠️ 常见性能陷阱
+## ⚠️ Common performance pitfalls
 
-1. **过度使用 request.security()**
-2. **在循环中进行复杂计算**
-3. **创建过多的绘图对象**
-4. **每个tick都更新所有数据**
-5. **不必要的历史引用**
-6. **深层嵌套的条件判断**
-7. **重复的字符串操作**
-8. **不必要的数据类型转换**
+1. **Overuse of request.security()**
+2. **Complex calculations inside loops**
+3. **Creating too many drawing objects**
+4. **Updating all data on every tick**
+5. **Unnecessary historical references**
+6. **Deeply nested conditionals**
+7. **Repeated string operations**
+8. **Unnecessary data type conversions**
 
-记住：**优化是平衡的艺术**。在追求性能的同时，也要考虑代码的可读性和维护性。先让代码正确，再让它快速。
+Remember: **Optimization is the art of balance**. While pursuing performance, also consider code readability and maintainability. Make it correct first, then make it fast.

@@ -1,51 +1,51 @@
 # Pine Script v6 Decision Trees
 
-## 概述
-本目录包含 Pine Script v6 开发中的决策树指南，帮助您在不同场景下做出最佳的技术选择。
+## Overview
+This directory contains decision-tree guides for Pine Script v6 development to help you make the best technical choices across different scenarios.
 
-## 决策树列表
+## Decision Tree List
 
-1. **[脚本类型选择](./script-type-selection.md)**
-   - 选择 indicator、strategy 还是 library
-   - 根据需求确定合适的脚本类型
+1. **[Script Type Selection](./script-type-selection.md)**
+   - Choose between indicator, strategy, or library
+   - Pick the right script type for your needs
 
-2. **[避免重绘](./avoid-repainting.md)**
-   - 判断是否需要避免重绘
-   - 选择合适的实现方案
+2. **[Avoid Repainting](./avoid-repainting.md)**
+   - Determine whether repainting must be avoided
+   - Choose an appropriate approach
 
-3. **[性能优化](./performance-optimization.md)**
-   - 识别性能瓶颈
-   - 选择优化策略
+3. **[Performance Optimization](./performance-optimization.md)**
+   - Identify performance bottlenecks
+   - Select optimization strategies
 
-4. **[可视化选择](./visualization-selection.md)**
-   - 选择合适的图表元素
-   - 优化显示效果
+4. **[Visualization Selection](./visualization-selection.md)**
+   - Choose appropriate chart elements
+   - Optimize visual presentation
 
 5. **[数据结构选择](./data-structure-selection.md)**
-   - 选择合适的数据容器
-   - 数组、矩阵、地图的比较
+   - Choose appropriate data containers
+   - Compare arrays, matrices, and maps
 
-6. **[警报实现](./alert-implementation.md)**
-   - 选择警报类型
-   - 实现最佳实践
+6. **[Alert Implementation](./alert-implementation.md)**
+   - Choose alert types
+   - Implement best practices
 
-7. **[跨周期数据请求](./multi-timeframe.md)**
-   - 安全使用 request.security()
-   - 避免未来泄漏
+7. **[Multi-timeframe Data Requests](./multi-timeframe.md)**
+   - Use request.security() safely
+   - Avoid future leaks
 
-## 如何使用决策树
+## How to Use These Decision Trees
 
-每个决策树都包含：
-- ✅ **决策起点**：清晰的问题
-- 🔀 **分支选择**：基于需求的路径
-- 💡 **解决方案**：具体的实现建议
-- ⚠️ **注意事项**：潜在的陷阱和警告
+Each decision tree includes:
+- ✅ **Starting point**: a clear question
+- 🔀 **Branch choices**: paths based on needs
+- 💡 **Solutions**: concrete implementation suggestions
+- ⚠️ **Notes**: potential pitfalls and warnings
 
-## 通用符号说明
+## Legend
 
-- 📊 **图表相关**：涉及数据可视化的决策
-- ⚡ **性能相关**：影响执行效率的决策
-- 🔒 **安全相关**：涉及代码安全性的决策
-- 🎯 **功能相关**：涉及功能实现的决策
-- ⚠️ **警告**：需要注意的潜在问题
-- 💡 **提示**：最佳实践建议
+- 📊 **Charting-related**: decisions involving data visualization
+- ⚡ **Performance-related**: decisions affecting execution efficiency
+- 🔒 **Security-related**: decisions involving code safety
+- 🎯 **Feature-related**: decisions about implementing functionality
+- ⚠️ **Warning**: potential issues to watch out for
+- 💡 **Tip**: best-practice suggestions

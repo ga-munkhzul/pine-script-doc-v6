@@ -1,39 +1,39 @@
-# 数据结构选择决策树
+# Data Structure Selection Decision Tree
 
-## 📦 起始问题：我需要存储什么类型的数据？
+## 📦 Starting question: What type of data do I need to store?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│   🗃️ Pine Script v6 数据结构选择指南                │
+│   🗃️ Pine Script v6 Data Structure Selection Guide   │
 │   Arrays (v4+) | Maps (v6) | Matrices (v6)         │
 └─────────────────────────────────────────────────────┘
     │
-    └─ 📊 数据维度？
+    └─ 📊 Data dimension?
         │
-        ├─ 一维数据（列表）
+        ├─ 1D data (list)
         │   └─ ➡️ **Array**
         │
-        ├─ 键值对（字典）
+        ├─ Key-value (dictionary)
         │   └─ ➡️ **Map**
         │
-        ├─ 二维数据（表格/矩阵）
+        ├─ 2D data (table/matrix)
         │   └─ ➡️ **Matrix**
         │
-        └─ 简单变量
-            └─ ➡️ **基础变量**
+        └─ Simple variables
+            └─ ➡️ **Basic variables**
 ```
 
-## 📚 Arrays（一维列表）
+## 📚 Arrays (one-dimensional lists)
 
 ```
-┌─ 选择：Array - 一维数据集合
+┌─ Choose: Array - one-dimensional collection
 │
-├─ 🎯 用途场景？
+├─ 🎯 Use cases?
 │   │
-│   ├─ 存储历史数据
-│   │   └─ ✅ **价格/指标序列**
+│   ├─ Store historical data
+│   │   └─ ✅ **Price/indicator series**
 │   │       ```pine
-│   │       // 存储最近N根K线的收盘价
+│   │       // Store the closes of the most recent N bars
 │   │       var float[] closePrices = array.new<float>(50)
 │   │       if barstate.isconfirmed
 │   │           array.unshift(closePrices, close)
@@ -41,10 +41,10 @@
 │   │               array.pop(closePrices)
 │   │       ```
 │   │
-│   ├─ 存储信号
-│   │   └─ ✅ **买卖信号序列**
+│   ├─ Store signals
+│   │   └─ ✅ **Buy/sell signal sequence**
 │   │       ```pine
-│   │       // 记录所有信号
+│   │       // Record all signals
 │   │       var int[] signals = array.new<int>()
 │   │       if buySignal
 │   │           array.push(signals, 1)
@@ -52,162 +52,162 @@
 │   │           array.push(signals, -1)
 │   │       ```
 │   │
-│   ├─ 存储计算结果
-│   │   └─ ✅ **中间计算值**
+│   ├─ Store computed results
+│   │   └─ ✅ **Intermediate values**
 │   │       ```pine
-│   │       // 存储多次计算结果
+│   │       // Store multiple computation results
 │   │       var float[] results = array.new<float>()
 │   │       for i = 0 to 10
 │   │           array.push(results, ta.rsi(close, i + 5))
 │   │       ```
 │   │
-│   └─ 存储配置参数
-│       └─ ✅ **动态参数列表**
+│   └─ Store configuration parameters
+│       └─ ✅ **Dynamic parameter list**
 │           ```pine
-│           // 可配置的周期列表
+│           // Configurable period list
 │           periods = array.from(5, 10, 20, 50, 100, 200)
 │           for period in periods
 │               ma = ta.sma(close, period)
 │               plot(ma)
 │           ```
 │
-├─ 🔧 Array 操作
+├─ 🔧 Array operations
 │   │
-│   ├─ 创建和初始化
+│   ├─ Create and initialize
 │   │   ```pine
-│   │   // 空数组
+│   │   // Empty array
 │   │   arr = array.new<float>()
 │   │
-│   │   // 预分配大小
+│   │   // Preallocate size
 │   │   arr = array.new<float>(100)
 │   │
-│   │   // 从值创建
+│   │   // From values
 │   │   arr = array.from(1, 2, 3, 4, 5)
 │   │
-│   │   // 填充初始值
+│   │   // Fill with initial value
 │   │   arr = array.new<float>(10, 0.0)
 │   │   ```
 │   │
-│   ├─ 添加元素
+│   ├─ Add elements
 │   │   ```pine
-│   │   // 末尾添加
+│   │   // Append at end
 │   │   array.push(arr, value)
 │   │
-│   │   // 开头添加
+│   │   // Add to front
 │   │   array.unshift(arr, value)
 │   │
-│   │   // 指定位置插入
+│   │   // Insert at index
 │   │   array.insert(arr, index, value)
 │   │   ```
 │   │
-│   ├─ 访问和修改
+│   ├─ Access and modify
 │   │   ```pine
-│   │   // 获取元素
+│   │   // Get element
 │   │   value = array.get(arr, index)
 │   │
-│   │   // 设置元素
+│   │   // Set element
 │   │   array.set(arr, index, value)
 │   │
-│   │   // 简化语法
+│   │   // Shorthand syntax
 │   │   value = arr[index]
 │   │   arr[index] = value
 │   │   ```
 │   │
-│   └─ 删除元素
+│   └─ Remove elements
 │       ```pine
-│       // 删除末尾
+│       // Remove last
 │       array.pop(arr)
 │
-│       // 删除开头
+│       // Remove first
 │       array.shift(arr)
 │
-│       // 删除指定位置
+│       // Remove at index
 │       array.remove(arr, index)
 │
-│       // 清空数组
+│       // Clear array
 │       array.clear(arr)
 │       ```
 │
-├─ 📊 Array 实用函数
+├─ 📊 Array utility functions
 │   │
-│   ├─ 查找和筛选
+│   ├─ Search and filter
 │   │   ```pine
-│   │   // 查找元素
+│   │   // Find element
 │   │   index = array.indexof(arr, targetValue)
 │   │
-│   │   // 检查包含
+│   │   // Contains check
 │   │   contains = array.includes(arr, targetValue)
 │   │
-│   │   // 筛选（Pine Script v6）
+│   │   // Filter (Pine Script v6)
 │   │   filtered = array.filter(arr, val => val > threshold)
 │   │   ```
 │   │
-│   ├─ 统计计算
+│   ├─ Statistics
 │   │   ```pine
-│   │   // 求和
+│   │   // Sum
 │   │   sum = array.sum(arr)
 │   │
-│   │   // 平均值
+│   │   // Average
 │   │   avg = array.avg(arr)
 │   │
-│   │   // 最大值/最小值
+│   │   // Max/Min
 │   │   max = array.max(arr)
 │   │   min = array.min(arr)
 │   │
-│   │   // 中位数
+│   │   // Median
 │   │   median = array.median(arr)
 │   │   ```
 │   │
-│   ├─ 排序
+│   ├─ Sorting
 │   │   ```pine
-│   │   // 升序排序
+│   │   // Ascending sort
 │   │   array.sort(arr, order.ascending)
 │   │
-│   │   // 降序排序
+│   │   // Descending sort
 │   │   array.sort(arr, order.descending)
 │   │   ```
 │   │
-│   └─ 切片和合并
+│   └─ Slicing and merging
 │       ```pine
-│       // 切片
+│       // Slice
 │       subArray = array.slice(arr, 0, 10)
 │
-│       // 合并
+│       // Concatenate
 │       combined = array.concat(arr1, arr2)
 │       ```
 │
-└─ ⚠️ Array 性能注意事项
-    ├─ 大小限制
-    │   - 最大 100,000 个元素
-    │   - 合理使用，避免过大数组
+└─ ⚠️ Array performance considerations
+    ├─ Size limits
+    │   - Up to 100,000 elements
+    │   - Use reasonably; avoid oversized arrays
     │
-    ├─ 类型一致性
-    │   - 数组只能存储一种类型
-    │   - 声明时确定类型
+    ├─ Type consistency
+    │   - Array stores a single type
+    │   - Type is set at declaration
     │
-    └─ 循环优化
+    └─ Loop optimization
         ```pine
-        // ❌ 低效
+        // ❌ Inefficient
         result = 0.0
         for i = 0 to array.size(arr) - 1
             result += array.get(arr, i)
 
-        // ✅ 高效
+        // ✅ Efficient
         result = array.sum(arr)
         ```
 ```
 
-## 🗺️ Maps（键值对）- Pine Script v6
+## 🗺️ Maps (key-value) - Pine Script v6
 
 ```
-┌─ 选择：Map - 键值对存储
+┌─ Choose: Map - key-value storage
 │
-├─ 🎯 使用场景？
+├─ 🎯 Use cases?
 │   │
-│   ├─ 配置管理
-│   │   └─ ✅ **参数配置字典**
+│   ├─ Configuration management
+│   │   └─ ✅ **Parameter config map**
 │   │       ```pine
-│   │       // 策略参数配置
+│   │       // Strategy parameter configuration
 │   │       var map<string, float> config = map.new<string, float>()
 │   │       if na(map.get(config, "risk"))
 │   │           map.put(config, "risk", 2.0)
@@ -215,10 +215,10 @@
 │   │           map.put(config, "maxDrawdown", 10.0)
 │   │       ```
 │   │
-│   ├─ 缓存计算结果
-│   │   └─ ✅ **计算缓存**
+│   ├─ Cache computed results
+│   │   └─ ✅ **Computation cache**
 │   │       ```pine
-│   │       // 缓存RSI计算结果
+│   │       // Cache RSI computation results
 │   │       var map<string, float> rsiCache = map.new<string, float>()
 │   │       cacheKey = str.tostring(bar_index) + "_" + str.tostring(rsiLength)
 │   │       cachedRSI = map.get(rsiCache, cacheKey)
@@ -227,101 +227,101 @@
 │   │           map.put(rsiCache, cacheKey, cachedRSI)
 │   │       ```
 │   │
-│   ├─ 数据聚合
-│   │   └─ ✅ **统计数据**
+│   ├─ Data aggregation
+│   │   └─ ✅ **Statistics**
 │   │       ```pine
-│   │       // 按时间段聚合数据
+│   │       // Aggregate by time period
 │   │       var map<string, int> volumeByHour = map.new<string, int>()
 │   │       hourKey = str.tostring(hour(time))
 │   │       currentVol = map.get(volumeByHour, hourKey)
 │   │       map.put(volumeByHour, hourKey, nz(currentVol) + volume)
 │   │       ```
 │   │
-│   └─ 状态管理
-│       └─ ✅ **状态追踪**
+│   └─ State management
+│       └─ ✅ **State tracking**
 │           ```pine
-│           // 追踪不同状态
+│           // Track different states
 │           var map<string, bool> states = map.new<string, bool>()
 │           map.put(states, "inPosition", strategy.position_size != 0)
 │           map.put(states, "trendUp", close > ta.sma(close, 20))
 │           ```
 │
-├─ 🔧 Map 操作
+├─ 🔧 Map operations
 │   │
-│   ├─ 创建和初始化
+│   ├─ Create and initialize
 │   │   ```pine
-│   │   // 空map
+│   │   // Empty map
 │   │   m = map.new<string, int>()
 │   │
-│   │   // 带初始值
+│   │   // With initial values
 │   │   m = map.new<string, float>()
 │   │   map.put(m, "key1", 1.0)
 │   │   map.put(m, "key2", 2.0)
 │   │   ```
 │   │
-│   ├─ 添加和更新
+│   ├─ Add and update
 │   │   ```pine
-│   │   // 添加键值对
+│   │   // Add key-value
 │   │   map.put(m, "newKey", newValue)
 │   │
-│   │   // 批量添加
+│   │   // Bulk insert
 │   │   for [key, value] in [["a", 1], ["b", 2], ["c", 3]]
 │   │       map.put(m, key, value)
 │   │   ```
 │   │
-│   ├─ 访问数据
+│   ├─ Access data
 │   │   ```pine
-│   │   // 获取值
+│   │   // Get value
 │   │   value = map.get(m, "key")
 │   │
-│   │   // 带默认值
+│   │   // With default
 │   │   value = map.get(m, "key", defaultValue)
 │   │
-│   │   // 检查键是否存在
+│   │   // Check if key exists
 │   │   exists = map.contains(m, "key")
 │   │   ```
 │   │
-│   └─ 删除和清空
+│   └─ Remove and clear
 │       ```pine
-│       // 删除键
+│       // Remove key
 │       map.remove(m, "key")
 │
-│       // 获取所有键
+│       // Get all keys
 │       keys = map.keys(m)
 │
-│       // 获取所有值
+│       // Get all values
 │       values = map.values(m)
 │
-│       // 清空map
+│       // Clear map
 │       map.clear(m)
 │       ```
 │
-├─ 📊 Map 高级用法
+├─ 📊 Advanced Map usage
 │   │
-│   ├─ 嵌套 Map
+│   ├─ Nested Map
 │   │   ```pine
-│   │   // 二维数据结构
+│   │   // 2D data structure
 │   │   var map<string, map<string, float>> nested = map.new()
 │   │   innerMap = map.new<string, float>()
 │   │   map.put(innerMap, "value", 100.0)
 │   │   map.put(nested, "outer", innerMap)
 │   │   ```
 │   │
-│   ├─ Map 作为缓存
+│   ├─ Map as cache
 │   │   ```pine
-│   │   // LRU缓存实现
+│   │   // LRU cache (example)
 │   │   var map<string, int> cache = map.new<string, int>()
 │   │   var int[] accessOrder = array.new<int>()
 │   │
-│   │   // 缓存管理逻辑
+│   │   // Cache management logic
 │   │   if array.size(accessOrder) > 100
 │   │       oldKey = array.shift(accessOrder)
 │   │       map.remove(cache, oldKey)
 │   │   ```
 │   │
-│   └─ 动态配置
+│   └─ Dynamic configuration
 │       ```pine
-│       // 动态读取配置
+│       // Read configuration dynamically
 │       configMap = map.from([
 │           ["period", 20],
 │           ["deviation", 2.0],
@@ -329,50 +329,50 @@
 │       ])
 │       ```
 │
-└─ ⚠️ Map 限制
-    ├─ 键类型限制
-    │   - 只支持 string 和 int 类型作为键
-    │   - 值可以是任何类型
+└─ ⚠️ Map limitations
+    ├─ Key types
+    │   - Only string and int keys are supported
+    │   - Values can be any type
     │
-    ├─ 性能考虑
-    │   - 查找速度快 O(1)
-    │   - 适合大量键值对
+    ├─ Performance considerations
+    │   - Fast lookups O(1)
+    │   - Suitable for many key-value pairs
     │
-    └─ 内存使用
-        - 比数组占用更多内存
-        - 合理控制map大小
+    └─ Memory usage
+        - Uses more memory than arrays
+        - Control map size sensibly
 ```
 
-## 🔢 Matrices（矩阵）- Pine Script v6
+## 🔢 Matrices (matrix) - Pine Script v6
 
 ```
-┌─ 选择：Matrix - 二维数据
+┌─ Choose: Matrix - two-dimensional data
 │
-├─ 🎯 使用场景？
+├─ 🎯 Use cases?
 │   │
-│   ├─ 数学计算
-│   │   └─ ✅ **线性代数运算**
+│   ├─ Math calculations
+│   │   └─ ✅ **Linear algebra operations**
 │   │       ```pine
-│   │       // 创建矩阵
+│   │       // Create matrix
 │   │       m = matrix.new<float>(3, 3, 0.0)
 │   │
-│   │       // 填充数据
+│   │       // Fill values
 │   │       for i = 0 to 2
 │   │           for j = 0 to 2
 │   │               matrix.set(m, i, j, i + j)
 │   │
-│   │       // 矩阵运算
+│   │       // Matrix operations
 │   │       identity = matrix.identity(3)
 │   │       result = matrix.mult(m, identity)
 │   │       ```
 │   │
-│   ├─ 数据网格
-│   │   └─ ✅ **二维数据存储**
+│   ├─ Data grid
+│   │   └─ ✅ **Two-dimensional data storage**
 │   │       ```pine
-│   │       // 价格网格
+│   │       // Price grid
 │   │       priceGrid = matrix.new<float>(10, 10, 0.0)
 │   │
-│   │       // 填充价格数据
+│   │       // Fill price data
 │   │       basePrice = close
 │   │       for i = 0 to 9
 │   │           for j = 0 to 9
@@ -380,13 +380,13 @@
 │   │               matrix.set(priceGrid, i, j, price)
 │   │       ```
 │   │
-│   ├─ 相关性矩阵
-│   │   └─ ✅ **资产相关性**
+│   ├─ Correlation matrix
+│   │   └─ ✅ **Asset correlation**
 │   │       ```pine
-│   │       // 多资产相关性矩阵
+│   │       // Multi-asset correlation matrix
 │   │       corrMatrix = matrix.new<float>(5, 5, 0.0)
 │   │
-│   │       // 计算相关性
+│   │       // Compute correlation
 │   │       assets = array.from("AAPL", "GOOGL", "MSFT", "AMZN", "FB")
 │   │       for i = 0 to 4
 │   │           for j = 0 to 4
@@ -394,186 +394,186 @@
 │   │               matrix.set(corrMatrix, i, j, corr)
 │   │       ```
 │   │
-│   └─ 机器学习数据
-│       └─ ✅ **特征矩阵**
+│   └─ Machine learning data
+│       └─ ✅ **Feature matrix**
 │           ```pine
-│           // 特征数据矩阵
+│           // Feature data matrix
 │           features = matrix.new<float>(100, 5, 0.0)
 │
-│           // 填充特征：RSI, MACD, MA差等
+│           // Features: RSI, MACD, MA diff, etc.
 │           for i = 0 to 99
 │               matrix.set(features, i, 0, ta.rsi(close[i], 14))
 │               matrix.set(features, i, 1, ta.macd(close[i])[0])
 │               matrix.set(features, i, 2, close[i] - ta.sma(close[i], 20))
 │           ```
 │
-├─ 🔧 Matrix 操作
+├─ 🔧 Matrix operations
 │   │
-│   ├─ 基础操作
+│   ├─ Basic operations
 │   │   ```pine
-│   │   // 创建矩阵
+│   │   // Create matrix
 │   │   m = matrix.new<int>(rows, cols, initialValue)
 │   │
-│   │   // 获取元素
+│   │   // Get element
 │   │   value = matrix.get(m, row, col)
 │   │
-│   │   // 设置元素
+│   │   // Set element
 │   │   matrix.set(m, row, col, value)
 │   │
-│   │   // 获取维度
+│   │   // Get dimensions
 │   │   rows = matrix.rows(m)
 │   │   cols = matrix.columns(m)
 │   │   ```
 │   │
-│   ├─ 矩阵运算
+│   ├─ Matrix operations
 │   │   ```pine
-│   │   // 加法
+│   │   // Addition
 │   │   result = matrix.add(m1, m2)
 │   │
-│   │   // 减法
+│   │   // Subtraction
 │   │   result = matrix.sub(m1, m2)
 │   │
-│   │   // 乘法
+│   │   // Multiplication
 │   │   result = matrix.mult(m1, m2)
 │   │
-│   │   // 数量积
+│   │   // Dot product
 │   │   result = matrix.dot(m1, m2)
 │   │
-│   │   // 转置
+│   │   // Transpose
 │   │   transposed = matrix.transpose(m)
 │   │   ```
 │   │
-│   ├─ 特殊矩阵
+│   ├─ Special matrices
 │   │   ```pine
-│   │   // 单位矩阵
+│   │   // Identity matrix
 │   │   identity = matrix.identity(size)
 │   │
-│   │   // 零矩阵
+│   │   // Zero matrix
 │   │   zeros = matrix.new<float>(rows, cols, 0.0)
 │   │
-│   │   // 对角矩阵
+│   │   // Diagonal matrix
 │   │       diagonal = matrix.diagonal(array.from(1, 2, 3, 4))
 │   │   ```
 │   │
-│   └─ 高级运算
+│   └─ Advanced operations
 │       ```pine
-│       // 行列式
+│       // Determinant
 │       det = matrix.det(m)
 
-│       // 逆矩阵
+│       // Inverse
 │       inverse = matrix.inv(m)
 
-│       // 伪逆
+│       // Pseudo-inverse
 │       pseudoInv = matrix.pinv(m)
 
-│       // 特征值（需要库）
+│       // Eigenvalues (requires library)
 │       ```
 │
-├─ 📊 Matrix 实用技巧
+├─ 📊 Matrix tips
 │   │
-│   ├─ 数据转换
+│   ├─ Data conversion
 │   │   ```pine
-│   │   // Array转Matrix
+│   │   // Array to Matrix
 │   │   arr = array.from(1, 2, 3, 4, 5, 6)
-│   │   m = matrix.from_array(arr, 2, 3)  // 2行3列
+│   │   m = matrix.from_array(arr, 2, 3)  // 2 rows x 3 cols
 │   │
-│   │   // Matrix转Array
+│   │   // Matrix to Array
 │   │   flatArr = matrix.to_array(m)
 │   │   ```
 │   │
-│   ├─ 行列操作
+│   ├─ Row/column operations
 │   │   ```pine
-│   │   // 获取行
+│   │   // Get row
 │   │   row = matrix.row(m, rowIndex)
 
-│   │   // 获取列
+│   │   // Get column
 │   │   col = matrix.col(m, colIndex)
 
-│   │   // 设置行
+│   │   // Set row
 │   │   matrix.set_row(m, rowIndex, newRowArray)
 
-│   │   // 设置列
+│   │   // Set column
 │   │   matrix.set_col(m, colIndex, newColArray)
 │   │   ```
 │   │
-│   └─ 子矩阵
+│   └─ Submatrices
 │       ```pine
-│       // 提取子矩阵
+│       // Extract submatrix
 │       subM = matrix.submatrix(m, startRow, endRow, startCol, endCol)
 
-│       // 合并矩阵
-│       combined = matrix.concat_vert(m1, m2)  // 垂直合并
-│       combined = matrix.concat_horiz(m1, m2)  // 水平合并
+│       // Concatenate matrices
+│       combined = matrix.concat_vert(m1, m2)  // vertical concat
+│       combined = matrix.concat_horiz(m1, m2)  // horizontal concat
 │       ```
 │
-└─ ⚠️ Matrix 限制
-    ├─ 维度限制
-    │   - 最大维度受内存限制
-    │   - 合理控制矩阵大小
+└─ ⚠️ Matrix limitations
+    ├─ Dimension limits
+    │   - Max dimensions limited by memory
+    │   - Control matrix size reasonably
     │
-    ├─ 计算复杂度
-    │   - 矩阵乘法 O(n³)
-    │   - 注意性能影响
+    ├─ Computational complexity
+    │   - Matrix multiplication O(n^3)
+    │   - Mind performance impact
     │
-    └─ 数据类型
-        - 所有元素必须是相同类型
-        - 支持 int, float, bool
+    └─ Data types
+        - All elements must be the same type
+        - Supports int, float, bool
 ```
 
-## 🔄 数据结构比较和选择
+## 🔄 Data Structure Comparison and Selection
 
 ```
-┌─ 数据结构选择指南
+┌─ Data structure selection guide
 │
-├─ 📊 根据数据维度选择
+├─ 📊 Choose by data dimensionality
 │   │
-│   ├─ 一维列表 → Array
-│   │   - 时间序列数据
-│   │   - 简单值集合
-│   │   - 历史价格存储
+│   ├─ One-dimensional list → Array
+│   │   - Time series data
+│   │   - Simple collections of values
+│   │   - Historical price storage
 │   │
-│   ├─ 键值对 → Map
-│   │   - 配置参数
-│   │   - 缓存系统
-│   │   - 字典数据
+│   ├─ Key-value pairs → Map
+│   │   - Configuration parameters
+│   │   - Caching systems
+│   │   - Dictionary-style data
 │   │
-│   └─ 二维表格 → Matrix
-│       - 数学运算
-│       - 网格数据
-│       - 特征矩阵
+│   └─ Two-dimensional table → Matrix
+│       - Math operations
+│       - Grid data
+│       - Feature matrices
 │
-├─ ⚡ 根据性能需求选择
+├─ ⚡ Choose by performance needs
 │   │
-│   ├─ 快速查找 → Map
-│   │   - O(1) 查找时间
-│   │   - 大量键值对
+│   ├─ Fast lookup → Map
+│   │   - O(1) lookup time
+│   │   - Many key-value pairs
 │   │
-│   ├─ 顺序访问 → Array
-│   │   - O(1) 索引访问
-│   │   - 遍历操作
+│   ├─ Sequential access → Array
+│   │   - O(1) index access
+│   │   - Iteration
 │   │
-│   └─ 数学运算 → Matrix
-│       - 线性代数
-│       - 批量计算
+│   └─ Mathematical operations → Matrix
+│       - Linear algebra
+│       - Batch computation
 │
-├─ 💾 根据内存使用选择
+├─ 💾 Choose by memory usage
 │   │
-│   ├─ 内存效率 → Array
-│   │   - 最小内存占用
-│   │   - 简单数据
+│   ├─ Memory efficient → Array
+│   │   - Minimal memory footprint
+│   │   - Simple data
 │   │
-│   ├─ 功能灵活 → Map
-│   │   - 动态键值
-│   │   - 元数据存储
+│   ├─ Flexible features → Map
+│   │   - Dynamic keys
+│   │   - Metadata storage
 │   │
-│   └─ 结构化数据 → Matrix
-│       - 二维数据
-│       - 表格结构
+│   └─ Structured data → Matrix
+│       - Two-dimensional data
+│       - Tabular structure
 │
-└─ 🔄 互转操作
+└─ 🔄 Conversions
     ├─ Array ↔ Map
     │   ```pine
-    │   // Array转Map
+    │   // Array to Map
     │   arr = array.from(1, 2, 3)
     │   m = map.new<string, int>()
     │   for i = 0 to array.size(arr) - 1
@@ -582,125 +582,125 @@
     │
     ├─ Array ↔ Matrix
     │   ```pine
-    │   // 一维Array转Matrix
+    │   // 1D Array to Matrix
     │   m = matrix.from_array(arr, rows, cols)
     │
-    │   // Matrix转Array
+    │   // Matrix to Array
     │   arr = matrix.to_array(m)
     │   ```
     │
     └─ Map → Array
         ```pine
-        // Map的键转Array
+        // Map keys to Array
         keys = map.keys(m)
 
-        // Map的值转Array
+        // Map values to Array
         values = map.values(m)
         ```
 ```
 
-## 📝 最佳实践总结
+## 📝 Best Practices Summary
 
-### Array 最佳实践
+### Array best practices
 ```pine
-// 1. 预分配大小
+// 1. Pre-allocate size
 var float[] prices = array.new<float>(100, 0.0)
 
-// 2. 使用内置函数
-sum = array.sum(arr)  // 而不是手动循环
+// 2. Use built-ins
+sum = array.sum(arr)  // instead of manual loops
 
-// 3. 批量操作
-array.fill(arr, value)  // 批量填充
+// 3. Bulk operations
+array.fill(arr, value)  // bulk fill
 
-// 4. 类型安全
-var int[] numbers = array.new<int>()  // 明确类型
+// 4. Type safety
+var int[] numbers = array.new<int>()  // explicit typing
 ```
 
-### Map 最佳实践
+### Map best practices
 ```pine
-// 1. 使用描述性键
+// 1. Use descriptive keys
 map.put(config, "stopLossPercent", 2.0)
 
-// 2. 检查键存在
+// 2. Check key existence
 if map.contains(cache, key)
     value = map.get(cache, key)
 
-// 3. 使用默认值
+// 3. Use default values
 value = map.get(m, "key", defaultValue)
 
-// 4. 缓存管理
+// 4. Cache management
 if map.size(cache) > maxCacheSize
     map.clear(cache)
 ```
 
-### Matrix 最佳实践
+### Matrix best practices
 ```pine
-// 1. 预先计算维度
+// 1. Pre-compute dimensions
 rows = math.ceil(math.sqrt(dataSize))
 cols = math.ceil(dataSize / rows)
 
-// 2. 使用矩阵运算
-result = matrix.mult(m1, m2)  // 而不是嵌套循环
+// 2. Prefer matrix ops
+result = matrix.mult(m1, m2)  // rather than nested loops
 
-// 3. 特殊矩阵
-identity = matrix.identity(size)  // 使用内置函数
+// 3. Special matrices
+identity = matrix.identity(size)  // use built-in
 
-// 4. 内存管理
+// 4. Memory management
 if matrix.rows(m) > maxRows
     m = matrix.submatrix(m, 0, maxRows, 0, matrix.columns(m))
 ```
 
-## ⚠️ 常见错误
+## ⚠️ Common mistakes
 
-1. **Array 索引越界**
+1. **Array index out of bounds**
    ```pine
-   // ❌ 错误
-   value = arr[array.size(arr)]  // 最后一个索引是 size-1
+   // ❌ Wrong
+   value = arr[array.size(arr)]  // last index is size-1
 
-   // ✅ 正确
+   // ✅ Correct
    value = arr[array.size(arr) - 1]
    ```
 
-2. **Map 类型错误**
+2. **Map type error**
    ```pine
-   // ❌ 错误：float不能作为键
+   // ❌ Wrong: float cannot be used as a key
    m = map.new<float, string>()
 
-   // ✅ 正确
+   // ✅ Correct
    m = map.new<string, float>()
    ```
 
-3. **Matrix 维度不匹配**
+3. **Matrix dimension mismatch**
    ```pine
-   // ❌ 错误：维度不匹配
+   // ❌ Wrong: mismatched dimensions
    result = matrix.mult(m2x3, m4x5)
 
-   // ✅ 正确
+   // ✅ Correct
    result = matrix.mult(m2x3, m3x5)
    ```
 
-4. **内存泄漏**
+4. **Memory leak**
    ```pine
-   // ❌ 错误：无限增长
-   array.push(arr, value)  // 从不清理
+   // ❌ Wrong: unbounded growth
+   array.push(arr, value)  // never pruned
 
-   // ✅ 正确：限制大小
+   // ✅ Correct: limit size
    if array.size(arr) > maxSize
        array.shift(arr)
    ```
 
-## 🎯 快速决策表
+## 🎯 Quick decision table
 
-| 需求 | Array | Map | Matrix |
+| Need | Array | Map | Matrix |
 |------|-------|-----|---------|
-| 时间序列数据 | ✅ | ❌ | ❌ |
-| 键值查找 | ❌ | ✅ | ❌ |
-| 数学矩阵运算 | ❌ | ❌ | ✅ |
-| 简单值列表 | ✅ | ❌ | ❌ |
-| 配置参数 | ❌ | ✅ | ❌ |
-| 二维数据网格 | 可以 | 可以 | ✅ |
-| 缓存系统 | ❌ | ✅ | ❌ |
-| 性能（查找） | O(n) | O(1) | O(n·m) |
-| 内存效率 | 高 | 中 | 低 |
+| Time series data | ✅ | ❌ | ❌ |
+| Key lookup | ❌ | ✅ | ❌ |
+| Matrix math | ❌ | ❌ | ✅ |
+| Simple value list | ✅ | ❌ | ❌ |
+| Configuration parameters | ❌ | ✅ | ❌ |
+| 2D data grid | Possible | Possible | ✅ |
+| Caching system | ❌ | ✅ | ❌ |
+| Performance (lookup) | O(n) | O(1) | O(n·m) |
+| Memory efficiency | High | Medium | Low |
 
-选择数据结构的关键是：**匹配数据特性，优化访问模式，考虑性能限制**。
+The key to choosing a data structure: **match data characteristics, optimize access patterns, and consider performance constraints**.

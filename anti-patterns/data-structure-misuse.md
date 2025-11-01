@@ -331,92 +331,92 @@ type OHLCV
 data = OHLCV.new(close, high, low, open, volume)
 ```
 
-## 9. 忽略类型检查
+## 9. Ignoring type checks
 
-### ❌ 错误示例：不检查类型转换
+### ❌ Incorrect example: not checking type conversions
 ```pine
 //@version=6
-indicator("错误：忽略类型检查")
+indicator("Error: Ignoring type checks")
 
-// ❌ 可能失败的转换
+// ❌ Conversion that may fail
 strValue = "123.45"
-numValue = float(strValue)  // 如果strValue不是有效数字会出错
+numValue = float(strValue)  // Errors if strValue is not a valid number
 
-// ❌ 不检查na值
+// ❌ Not checking na values
 value = someCalculation()
-result = value * 2  // 如果value是na会导致错误
+result = value * 2  // If value is na, this causes an error
 ```
 
-### 🚨 问题说明
-- Pine Script 不会自动处理所有类型转换错误
-- na 值参与运算会产生错误结果
-- 需要显式检查和处理
+### 🚨 Problem explanation
+- Pine Script does not automatically handle all type conversion errors
+- Operations with na values produce incorrect results
+- Explicit checks and handling are required
 
-### ✅ 正确做法：类型安全和na检查
+### ✅ Correct approach: type safety and na checks
 ```pine
 //@version=6
-indicator("正确：类型安全")
+indicator("Correct: Type safety")
 
-// ✅ 安全的字符串转换
+// ✅ Safe string conversion
 strValue = "123.45"
 numValue = str.tonumber(strValue)
 result = na(numValue) ? 0.0 : numValue
 
-// ✅ na值检查
+// ✅ Check for na
 value = someCalculation()
 if not na(value)
     result = value * 2
 else
     result = 0.0
 
-// ✅ 使用nz函数
+// ✅ Use nz function
 result = nz(value, 0.0) * 2
 ```
 
-## 10. 数组/Map/Matrix 选择错误
+## 10. Wrong choice of Array/Map/Matrix
 
-### ❌ 错误示例：选择错误的数据结构
+### ❌ Incorrect example: choosing the wrong data structure
 ```pine
 //@version=6
-indicator("错误：结构选择错误")
+indicator("Error: Wrong structure choice")
 
-// ❌ 需要快速查找却使用数组
+// ❌ Uses array when fast lookup is needed
 var float[] searchArray = array.from(10, 20, 30, 40, 50)
 target = 30
 found = false
-for i = 0 to array.size(searchArray) - 1  // O(n)查找
+for i = 0 to array.size(searchArray) - 1  // O(n) lookup
     if array.get(searchArray, i) == target
         found := true
         break
 ```
 
-### 🚨 问题说明
-- 数组查找是 O(n) 复杂度
-- Map 查找是 O(1) 复杂度
-- 选择错误的结构会影响性能
+### 🚨 Problem explanation
+- Array search is O(n)
+- Map lookup is O(1)
+- Choosing the wrong structure impacts performance
 
-### ✅ 正确做法：根据需求选择
+### ✅ Correct approach: choose based on requirements
 ```pine
 //@version=6
-indicator("正确：结构选择")
+indicator("Correct: Structure selection")
 
-// ✅ 需要快速查找使用Map
+// ✅ Use Map for fast lookups
 var map<int, bool> lookupMap = map.new<int, bool>()
 map.put(lookupMap, 10, true)
 map.put(lookupMap, 20, true)
 map.put(lookupMap, 30, true)
 
 target = 30
-found = map.contains(lookupMap, target)  // O(1)查找
+found = map.contains(lookupMap, target)  // O(1) lookup
 
-// ✅ 需要顺序访问使用数组
+// ✅ Use array for sequential access
 var float[] sequence = array.from(10, 20, 30, 40, 50)
 for i = 0 to array.size(sequence) - 1
     value = array.get(sequence, i)
-    // 处理序列
+    // Process the sequence
 ```
 
-## 数据结构选择指南
+## Data structure selection guide
 
 | 需求 | 最佳选择 | 替代方案 | 注意事项 |
 |------|----------|----------|----------|

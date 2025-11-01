@@ -95,44 +95,44 @@ else
         buyLabel := na
 ```
 
-## 3. 动态支撑阻力重绘
+## 3. Dynamic support/resistance repainting
 
-### ❌ 错误示例：动态调整历史水平
+### ❌ Incorrect example: dynamically adjusting historical levels
 ```pine
 //@version=6
-indicator("错误：动态支撑阻力", overlay=true)
+indicator("Error: Dynamic support/resistance", overlay=true)
 
-// ❌ 使用pivot点但允许历史调整
-leftLen = input.int(10, "左侧长度")
-rightLen = input.int(10, "右侧长度")
+// ❌ Using pivot points while allowing historical adjustment
+leftLen = input.int(10, "Left length")
+rightLen = input.int(10, "Right length")
 
-// pivot.high允许未来数据影响历史pivot
+// pivot.high allows future data to affect historical pivots
 pivothigh = ta.pivothigh(high, leftLen, rightLen)
 
-// 历史pivot会随着新K线而移动
-plot(pivothigh, "阻力", color.red)
+// Historical pivots move as new bars arrive
+plot(pivothigh, "Resistance", color.red)
 ```
 
-### 🚨 问题说明
-- `ta.pivothigh` 默认允许未来数据调整历史pivot点
-- 当新K线出现时，过去的pivot点可能改变位置
-- 导致回测结果与实际交易不符
+### 🚨 Problem explanation
+- `ta.pivothigh` by default allows future data to adjust historical pivot points
+- When new bars appear, past pivot points can change position
+- Backtests diverge from real trading
 
-### ✅ 正确做法：固定历史pivot
+### ✅ Correct approach: fix historical pivots
 ```pine
 //@version=6
-indicator("正确：固定支撑阻力", overlay=true)
+indicator("Correct: Fixed support/resistance", overlay=true)
 
-// ✅ 使用var固定历史pivot
+// ✅ Use var to fix historical pivots
 var float resistanceLevel = na
 var float supportLevel = na
 var int lastPivotBar = na
 
-// 检测新的pivot点（只确认）
+// Detect new pivot points (confirmed only)
 ph = ta.pivothigh(high, 10, 10)
 pl = ta.pivotlow(low, 10, 10)
 
-// 只在确认后更新（不改变历史）
+// Update only after confirmation (do not change history)
 if not na(ph)
     resistanceLevel := ph
     lastPivotBar := bar_index
@@ -141,95 +141,95 @@ if not na(pl)
     supportLevel := pl
     lastPivotBar := bar_index
 
-// 绘制固定的水平线
-plot(resistanceLevel, "阻力", color.red, style=plot.style_linebr)
-plot(supportLevel, "支撑", color.green, style=plot.style_linebr)
+// Draw fixed horizontal lines
+plot(resistanceLevel, "Resistance", color.red, style=plot.style_linebr)
+plot(supportLevel, "Support", color.green, style=plot.style_linebr)
 ```
 
-## 4. 计算时使用未来数据
+## 4. Using future data in calculations
 
-### ❌ 错误示例：在实时K线上使用未来值
+### ❌ Incorrect example: using future values on live bars
 ```pine
 //@version=6
-indicator("错误：未来计算")
+indicator("Error: Future-based calculation")
 
-// ❌ 在实时K线上使用最高最低价
+// ❌ Using high/low on live bars
 atr = ta.atr(14)
 upperBand = high + atr
 lowerBand = low - atr
 
-// 实时K线的high/low会变化
-plot(upperBand, "上轨", color.red)
-plot(lowerBand, "下轨", color.green)
+// High/low change on live bars
+plot(upperBand, "Upper band", color.red)
+plot(lowerBand, "Lower band", color.green)
 
-// 基于未来值的突破信号
+// Breakout signal based on future values
 breakout = ta.crossover(close, upperBand)
-plotshape(breakout, "突破", style=shape.triangleup)
+plotshape(breakout, "Breakout", style=shape.triangleup)
 ```
 
-### 🚨 问题说明
-- `high` 和 `low` 在实时K线上会不断更新
-- 基于这些值绘制的通道会实时变化
-- 突破信号可能在K线收盘前触发然后消失
+### 🚨 Problem explanation
+- `high` and `low` keep updating on live bars
+- Channels drawn from these values change in real time
+- Breakout signals may trigger before close and then disappear
 
-### ✅ 正确做法：使用确认值
+### ✅ Correct approach: use confirmed values
 ```pine
 //@version=6
-indicator("正确：确认值计算")
+indicator("Correct: Confirmed-value calculation")
 
-// ✅ 使用前一根K线的确认值
+// ✅ Use prior bar’s confirmed values
 prevHigh = high[1]
 prevLow = low[1]
 prevAtr = ta.atr(14)[1]
 
-// 计算固定通道
+// Compute fixed channel
 upperBand = prevHigh + prevAtr
 lowerBand = prevLow - prevAtr
 
-// 通道值在当前K线固定
-plot(upperBand, "上轨", color.red)
-plot(lowerBand, "下轨", color.green)
+// Channel values are fixed on the current bar
+plot(upperBand, "Upper band", color.red)
+plot(lowerBand, "Lower band", color.green)
 
-// 突破信号基于固定值
+// Breakout signal based on fixed values
 breakout = ta.crossover(close, upperBand)
-plotshape(breakout, "突破", style=shape.triangleup)
+plotshape(breakout, "Breakout", style=shape.triangleup)
 ```
 
-## 5. 多时间框架重绘
+## 5. Multi-timeframe repainting
 
-### ❌ 错误示例：混合时间框架导致不一致
+### ❌ Incorrect example: mixing timeframes leads to inconsistency
 ```pine
 //@version=6
-indicator("错误：MTF重绘", overlay=true)
+indicator("Error: MTF repainting", overlay=true)
 
-// ❌ 获取不同时间框架的数据但未同步
+// ❌ Fetching different timeframe data without synchronization
 m5_close = request.security(syminfo.tickerid, "5", close)
 h1_close = request.security(syminfo.tickerid, "60", close)
 
-// 不同时间框架的数据更新频率不同
-// 导致指标在不同时间不一致
+// Different timeframes update at different frequencies
+// Leads to indicator inconsistency over time
 alignment = m5_close > h1_close
 bgcolor(alignment ? color.green : color.red, transp=90)
 
-// 基于对齐信号的交易
-plotshape(alignment, "对齐信号", style=shape.circle)
+// Trading based on alignment signal
+plotshape(alignment, "Alignment signal", style=shape.circle)
 ```
 
-### 🚨 问题说明
-- 不同时间框架的数据更新频率不同
-- 5分钟数据每5分钟更新，1小时数据每小时更新
-- 会导致背景色在大部分时间为na或错误
+### 🚨 Problem explanation
+- Different timeframes update at different frequencies
+- 5-minute data updates every 5 minutes; 1-hour data updates hourly
+- Background color becomes na or incorrect most of the time
 
-### ✅ 正确做法：同步更新
+### ✅ Correct approach: synchronize updates
 ```pine
 //@version=6
-indicator("正确：MTF同步", overlay=true)
+indicator("Correct: MTF synchronization", overlay=true)
 
-// ✅ 缓存高时间框架数据
+// ✅ Cache higher timeframe data
 var float h1_close = na
 var int lastHour = na
 
-// 只在小时变化时更新
+// Update only on hour change
 currentHour = hour(time)
 if currentHour != lastHour
     h1_close := request.security(
@@ -240,80 +240,80 @@ if currentHour != lastHour
     )
     lastHour := currentHour
 
-// 使用当前周期的5分钟数据
+// Use 5-minute data from current timeframe
 m5_close = close
 
-// 两个值都是确认值
+// Both values are confirmed
 alignment = m5_close > h1_close
 bgcolor(not na(alignment) ?
         (alignment ? color.green : color.red) : na,
         transp=90)
 
-plotshape(alignment, "对齐信号", style=shape.circle)
+plotshape(alignment, "Alignment signal", style=shape.circle)
 ```
 
-## 6. 循环引用导致重绘
+## 6. Circular references causing repainting
 
-### ❌ 错误示例：循环依赖
+### ❌ Incorrect example: circular dependency
 ```pine
 //@version=6
-indicator("错误：循环引用")
+indicator("Error: Circular reference")
 
-// ❌ value依赖自身的历史值
-// 但在实时K线上会循环更新
+// ❌ value depends on its own historical values
+// But on live bars it updates recursively
 var float value = 0
 value := ta.sma(value, 10) + close * 0.1
 
-// 在实时K线上，value会不断重绘
-plot(value, "循环值", color.red)
+// On live bars, value keeps repainting
+plot(value, "Cyclic value", color.red)
 ```
 
-### 🚨 问题说明
-- `value` 依赖于自身的平滑值
-- 在实时K线上，每次更新都会影响后续计算
-- 导致无限循环式的重绘
+### 🚨 Problem explanation
+- `value` depends on its own smoothed value
+- On live bars, each update affects subsequent calculations
+- Causes unbounded recursive repainting
 
-### ✅ 正确做法：明确计算链
+### ✅ Correct approach: explicit computation chain
 ```pine
 //@version=6
-indicator("正确：明确计算")
+indicator("Correct: Explicit computation")
 
-// ✅ 使用独立的计算链
+// ✅ Use an independent computation chain
 rawValue = close * 0.1
 var float[] rawHistory = array.new<float>(10, 0)
 
-// 只在K线确认时更新
+// Update only on bar confirmation
 if barstate.isconfirmed
     array.unshift(rawHistory, rawValue)
     if array.size(rawHistory) > 10
         array.pop(rawHistory)
 
-// 计算基于历史数据
+// Compute based on historical data
 smoothValue = array.avg(rawHistory)
-plot(smoothValue, "平滑值", color.blue)
+plot(smoothValue, "Smoothed value", color.blue)
 ```
 
-## 7. timenow 使用错误
+## 7. timenow misuse
 
-### ❌ 错误示例：使用当前时间
+### ❌ Incorrect example: using current time
 ```pine
 //@version=6
-indicator("错误：timenow使用")
+indicator("Error: timenow usage")
 
-// ❌ timenow在实时K线上不断变化
+// ❌ timenow changes continuously on live bars
 isSessionEnd = hour(timenow) >= 15 and minute(timenow) >= 30
 
-// 判断会随实时时间变化
+// The condition changes with real time
 bgcolor(isSessionEnd ? color.red : na)
 
-// 基于时间的信号
+// Time-based signal
 if isSessionEnd
-    label.new(bar_index, high, "收盘时间", color.red)
+    label.new(bar_index, high, "Session close time", color.red)
 ```
 
-### 🚨 问题说明
-- `timenow` 是脚本运行的实时时间
-- 在实时K线上会不断变化
+### 🚨 Problem explanation
+- `timenow` is the script's real-time clock
+- It constantly changes on live bars
 - 历史K线上的判断也会随着时间推移而改变
 
 ### ✅ 正确做法：使用K线时间

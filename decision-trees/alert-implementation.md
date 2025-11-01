@@ -1,339 +1,339 @@
-# 警报实现决策树
+# Alert Implementation Decision Tree
 
-## 🔔 起始问题：我需要实现什么类型的警报？
+## 🔔 Starting question: What type of alert do I need to implement?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│   ⚠️ Pine Script 警报类型选择                        │
-│   • alertcondition() - UI条件警报                    │
-│   • alert() - 动态消息警报                          │
-│   • 策略订单填充警报                               │
+│   ⚠️ Pine Script alert type selection                │
+│   • alertcondition() - UI condition alert            │
+│   • alert() - dynamic message alert                  │
+│   • Strategy order-fill alerts                       │
 └─────────────────────────────────────────────────────┘
     │
-    └─ 📋 警报需求？
+    └─ 📋 Alert requirement?
         │
-        ├─ 简单条件触发（用户在UI中选择）
+        ├─ Simple condition trigger (user selects in UI)
         │   └─ ➡️ **alertcondition()**
         │
-        ├─ 复杂动态消息
+        ├─ Complex dynamic messages
         │   └─ ➡️ **alert()**
         │
-        ├─ 策略交易信号
-        │   └─ ➡️ **订单填充警报**
+        ├─ Strategy trade signals
+        │   └─ ➡️ **Order-fill alerts**
         │
-        └─ 多种警报组合
-            └─ ➡️ **混合方案**
+        └─ Multiple alert types combined
+            └─ ➡️ **Mixed approach**
 ```
 
-## 📊 alertcondition() - UI条件警报
+## 📊 alertcondition() - UI condition alerts
 
 ```
-┌─ 选择：alertcondition()
+┌─ You chose: alertcondition()
 │
-├─ ✅ 适用场景
+├─ ✅ Applicable scenarios
 │   │
-│   ├─ 简单买入/卖出信号
+│   ├─ Simple buy/sell signals
 │   │   ```pine
-│   │   // 交叉信号
+│   │   // Crossover signal
 │   │   [macdLine, signalLine] = ta.macd(close, 12, 26, 9)
 │   │   bullishCross = ta.crossover(macdLine, signalLine)
 │   │   bearishCross = ta.crossunder(macdLine, signalLine)
 │   │
-│   │   // 创建警报条件
-│   │   alertcondition(bullishCross, "MACD看涨交叉")
-│   │   alertcondition(bearishCross, "MACD看跌交叉")
+│   │   // Create alert conditions
+│   │   alertcondition(bullishCross, "MACD Bullish Cross")
+│   │   alertcondition(bearishCross, "MACD Bearish Cross")
 │   │   ```
 │   │
-│   ├─ 价格水平突破
+│   ├─ Price level breakouts
 │   │   ```pine
-│   │   // 支撑阻力突破
+│   │   // Support/resistance breakout
 │   │   resistance = ta.highest(high, 20)
 │   │   support = ta.lowest(low, 20)
 │   │
 │   │   alertcondition(ta.crossover(close, resistance),
-│   │                  "突破阻力位")
+│   │                  "Break resistance")
 │   │   alertcondition(ta.crossunder(close, support),
-│   │                  "跌破支撑位")
+│   │                  "Break support")
 │   │   ```
 │   │
-│   └─ 指标阈值触发
+│   └─ Indicator threshold triggers
 │       ```pine
-│       // RSI超买超卖
+│       // RSI overbought/oversold
 │       rsi = ta.rsi(close, 14)
-│       alertcondition(rsi > 70, "RSI超买")
-│       alertcondition(rsi < 30, "RSI超卖")
+│       alertcondition(rsi > 70, "RSI Overbought")
+│       alertcondition(rsi < 30, "RSI Oversold")
 │       ```
 │
-├─ 🔧 基本语法
+├─ 🔧 Basic syntax
 │   │
-│   ├─ 简单形式
+│   ├─ Simple form
 │   │   ```pine
 │   │   alertcondition(condition, title)
 │   │   ```
 │   │
-│   ├─ 带消息
+│   ├─ With message
 │   │   ```pine
 │   │   alertcondition(condition, title, message)
 │   │   ```
 │   │
-│   └─ 完整参数
+│   └─ Full parameters
 │       ```pine
 │       alertcondition(
-│           condition,      // 条件表达式
-│           title,          // 在警报对话框中显示的标题
-│           message         // 警报消息模板
+│           condition,      // Condition expression
+│           title,          // Title shown in the Alert dialog
+│           message         // Alert message template
 │       )
 │       ```
 │
-├─ 📝 消息模板
+├─ 📝 Message templates
 │   │
-│   ├─ 使用预定义变量
+│   ├─ Use predefined variables
 │   │   ```pine
 │   │   alertcondition(
 │   │       buySignal,
-│   │       "买入信号",
-│   │       "买入 {{ticker}} 在 {{close}} 价格"
+│   │       "Buy signal",
+│   │       "Buy {{ticker}} at {{close}}"
 │   │   )
 │   │
-│   │   // 可用变量：
+│   │   // Available variables:
 │   │   // {{exchange}}, {{ticker}}, {{interval}}
 │   │   // {{close}}, {{high}}, {{low}}, {{open}}
 │   │   // {{time}}, {{timenow}}
 │   │   ```
 │   │
-│   ├─ 自定义变量
+│   ├─ Custom variables
 │   │   ```pine
-│   │   // ❌ 错误：不能使用自定义变量
-│   │   alertcondition(signal, "信号", "价格: {{myPrice}}")
+│   │   // ❌ Wrong: cannot use custom variables
+│   │   alertcondition(signal, "Signal", "Price: {{myPrice}}")
 │   │
-│   │   // ✅ 正确：使用内置变量
-│   │   alertcondition(signal, "信号", "价格: {{close}}")
+│   │   // ✅ Correct: use built-in variables
+│   │   alertcondition(signal, "Signal", "Price: {{close}}")
 │   │   ```
 │   │
-│   └─ 多语言支持
+│   └─ Multi-language support
 │       ```pine
-│       // 中文消息
-│       alertcondition(buySignal, "买入",
-│                      "在 {{close}} 买入 {{ticker}}")
+│       // Chinese message
+│       alertcondition(buySignal, "Buy",
+│                      "Buy {{ticker}} at {{close}}")
 │       ```
 │
-├─ ⚠️ 限制和注意事项
+├─ ⚠️ Limitations and notes
 │   │
-│   ├─ 仅限指标使用
-│   │   ❌ 策略中不能使用 alertcondition()
+│   ├─ Indicators only
+│   │   ❌ Cannot be used in strategies
 │   │
-│   ├─ 消息是静态的
-│   │   ❌ 不能包含动态计算的值
-│   │   ✅ 只能使用预定义变量
+│   ├─ Messages are static
+│   │   ❌ Cannot include dynamically computed values
+│   │   ✅ Only predefined variables allowed
 │   │
-│   ├─ 计数限制
-│   │   - 最多 20 个 alertcondition()
-│   │   - 计入脚本的绘图计数
+│   ├─ Count limits
+│   │   - Up to 20 alertcondition() calls
+│   │   - Counts towards script plot count
 │   │
-│   └─ 触发频率
-│       - 仅在实时K线触发
-│       - 需要用户在UI中激活
+│   └─ Trigger frequency
+│       - Triggers only on realtime bars
+│       - Requires user activation in UI
 │
-└─ 💡 最佳实践
-    ├─ 清晰的标题
+└─ 💡 Best practices
+    ├─ Clear titles
     │   ```pine
-    │   // ✅ 好的标题
-    │   alertcondition(signal, "MACD金叉（12,26,9）")
+    │   // ✅ Good title
+    │   alertcondition(signal, "MACD Golden Cross (12,26,9)")
     │
-    │   // ❌ 模糊的标题
-    │   alertcondition(signal, "信号")
+    │   // ❌ Vague title
+    │   alertcondition(signal, "Signal")
     │   ```
     │
-    ├─ 描述性消息
+    ├─ Descriptive messages
     │   ```pine
     │   alertcondition(
     │       crossUp,
-    │       "MA20上穿MA50",
-    │       "移动平均线看涨交叉：{{ticker}} {{interval}}"
+    │       "MA20 crosses above MA50",
+    │       "Bullish MA crossover: {{ticker}} {{interval}}"
     │   )
     │   ```
     │
-    └─ 组合条件
+    └─ Combined conditions
         ```pine
-        // 多重确认
+        // Multiple confirmations
         strongBuy = rsi < 30 and close > ta.sma(close, 50)
-        alertcondition(strongBuy, "强买入信号",
-                      "RSI超卖且价格在MA之上")
+        alertcondition(strongBuy, "Strong buy signal",
+                      "RSI oversold and price above MA")
         ```
 ```
 
-## 🚨 alert() - 动态消息警报
+## 🚨 alert() - Dynamic message alerts
 
 ```
-┌─ 选择：alert()
+┌─ You chose: alert()
 │
-├─ ✅ 适用场景
+├─ ✅ Applicable scenarios
 │   │
-│   ├─ 动态价格警报
+│   ├─ Dynamic price alerts
 │   │   ```pine
-│   │   // 自定义价格计算
+│   │   // Custom price calculation
 │   │   entryPrice = ta.lowest(low, 5) * 1.02
 │   │   if close > entryPrice and barstate.isconfirmed
 │   │       alert(
-│   │           "突破入场价: " + str.tostring(close) +
-│   │           " 目标价: " + str.tostring(close * 1.05),
+│   │           "Broke entry price: " + str.tostring(close) +
+│   │           " Target: " + str.tostring(close * 1.05),
 │   │           alert.freq_once_per_bar_close
 │   │       )
 │   │   ```
 │   │
-│   ├─ 多指标组合信号
+│   ├─ Composite multi-indicator signal
 │   │   ```pine
-│   │   // 复合条件警报
+│   │   // Composite condition alert
 │   │   rsi = ta.rsi(close, 14)
 │   │   macd = ta.macd(close)[0]
 │   │   volumeSpike = volume > ta.sma(volume, 20) * 2
 │   │
 │   │   if rsi < 30 and macd > 0 and volumeSpike
-│   │       alertMsg = "多重确认买入信号:\n" +
+│   │       alertMsg = "Multi-confirmation buy signal:\n" +
 │   │                    "RSI: " + str.tostring(rsi, "#.##") + "\n" +
 │   │                    "MACD: " + str.tostring(macd, "#.####") + "\n" +
-│   │                    "成交量: " + str.tostring(volume)
+│   │                    "Volume: " + str.tostring(volume)
 │   │       alert(alertMsg, alert.freq_once_per_bar)
 │   │   ```
 │   │
-│   ├─ 实时监控警报
+│   ├─ Realtime monitoring alerts
 │   │   ```pine
-│   │   // 实时价格变化警报
+│   │   // Realtime price change alert
 │   │   priceChange = math.abs(close - close[1]) / close[1] * 100
 │   │   if priceChange > 5
-│   │       alert("价格剧烈变化: " +
+│   │       alert("Sharp price change: " +
 │   │              str.tostring(priceChange, "#.##") + "%",
 │   │              alert.freq_all)
 │   │   ```
 │   │
-│   └─ 策略状态警报
+│   └─ Strategy state alerts
 │       ```pine
-│       // 策略状态变化
+│       // Strategy state changes
 │       var bool inPosition = false
 │       if strategy.position_size != 0 and not inPosition
 │           inPosition := true
-│           alert("进入仓位: " + str.tostring(strategy.position_avg_price))
+│           alert("Enter position: " + str.tostring(strategy.position_avg_price))
 │       else if strategy.position_size == 0 and inPosition
 │           inPosition := false
-│           alert("退出所有仓位")
+│           alert("Exit all positions")
 │       ```
 │
-├─ 🔧 频率控制
+├─ 🔧 Frequency control
 │   │
 │   ├─ alert.freq_once_per_bar
 │   │   ```pine
-│   │   // 每根K线仅触发一次
+│   │   // Trigger only once per bar
 │   │   if condition
-│   │       alert("信号", alert.freq_once_per_bar)
+│   │       alert("Signal", alert.freq_once_per_bar)
 │   │   ```
 │   │
 │   ├─ alert.freq_once_per_bar_close
 │   │   ```pine
-│   │   // 仅在K线收盘时触发（避免重绘）
+│   │   // Trigger only at bar close (avoid repainting)
 │   │   if condition and barstate.isconfirmed
-│   │       alert("确认信号", alert.freq_once_per_bar_close)
+│   │       alert("Confirmed signal", alert.freq_once_per_bar_close)
 │   │   ```
 │   │
 │   └─ alert.freq_all
 │       ```pine
-│       // 每次条件满足都触发（谨慎使用）
+│       // Trigger every time the condition is met (use carefully)
 │       if realtimeCondition
-│           alert("实时更新", alert.freq_all)
+│           alert("Realtime update", alert.freq_all)
 │       ```
 │
-├─ 📊 高级功能
+├─ 📊 Advanced features
 │   │
-│   ├─ 条件组合
+│   ├─ Combine conditions
 │   │   ```pine
-│   │   // 多条件警报
+│   │   // Multiple-condition alert
 │   │   if condition1 and condition2 and barstate.isconfirmed
-│   │       alert("组合条件满足", alert.freq_once_per_bar_close)
+│   │       alert("Combined conditions met", alert.freq_once_per_bar_close)
 │   │   ```
 │   │
-│   ├─ 计数和限制
+│   ├─ Counting and rate limiting
 │   │   ```pine
-│   │   // 限制警报频率
+│   │   // Rate-limit alerts
 │   │   var int lastAlertBar = 0
 │   │   minBarsBetween = 20
 │   │
 │   │   if condition and bar_index - lastAlertBar > minBarsBetween
-│   │       alert("信号", alert.freq_once_per_bar)
+│   │       alert("Signal", alert.freq_once_per_bar)
 │   │       lastAlertBar := bar_index
 │   │   ```
 │   │
-│   └─ 格式化消息
+│   └─ Formatted messages
 │       ```pine
-│       // 富文本格式
+│       // Rich text formatting
 │       alertMsg = "🔥 " + title + "\n" +
-│                  "价格: " + str.tostring(close, "#.##") + "\n" +
-│                  "时间: " + str.format("{0,date,yyyy-MM-dd HH:mm}", time)
+│                  "Price: " + str.tostring(close, "#.##") + "\n" +
+│                  "Time: " + str.format("{0,date,yyyy-MM-dd HH:mm}", time)
 │       alert(alertMsg)
 │       ```
 │
-├─ ⚠️ 注意事项
+├─ ⚠️ Notes
 │   │
-│   ├─ 实时限制
-│   │   - alert() 仅在实时K线工作
-│   │   - 历史K线不会触发警报
+│   ├─ Realtime limitations
+│   │   - alert() runs only on realtime bars
+│   │   - Historical bars won't trigger alerts
 │   │
-│   ├─ 性能考虑
-│   │   - 避免过多警报调用
-│   │   - 合理设置频率
+│   ├─ Performance considerations
+│   │   - Avoid too many alert calls
+│   │   - Set appropriate frequency
 │   │
-│   └─ 消息长度
-│       - 警报消息有长度限制
-│       - 保持消息简洁
+│   └─ Message length
+│       - Alert message length is limited
+│       - Keep messages concise
 │
-└─ 💡 最佳实践
-    ├─ 使用 barstate.isconfirmed
+└─ 💡 Best practices
+    ├─ Use barstate.isconfirmed
     │   ```pine
-    │   // 避免重绘导致的误报
+    │   // Avoid false positives from repainting
     │   if signal and barstate.isconfirmed
-    │       alert("确认信号", alert.freq_once_per_bar_close)
+    │       alert("Confirmed signal", alert.freq_once_per_bar_close)
     │   ```
     │
-    ├─ 清晰的消息格式
+    ├─ Clear message format
     │   ```pine
-    │   // 结构化消息
-    │   alert("【买入信号】\n" +
-    │        "标的: {{ticker}}\n" +
-    │        "价格: " + str.tostring(close) + "\n" +
-    │        "指标: " + str.tostring(rsi, "#.##"))
+    │   // Structured message
+    │   alert("[Buy signal]\n" +
+    │        "Symbol: {{ticker}}\n" +
+    │        "Price: " + str.tostring(close) + "\n" +
+    │        "Indicator: " + str.tostring(rsi, "#.##"))
     │   ```
     │
-    └─ 错误处理
+    └─ Error handling
         ```pine
-        // 验证数据后再发送警报
+        // Validate data before sending alerts
         if not na(close) and not na(volume) and condition
-            alert("有效信号", alert.freq_once_per_bar)
+            alert("Valid signal", alert.freq_once_per_bar)
         ```
 ```
 
-## 📈 策略订单填充警报
+## 📈 Strategy order-fill alerts
 
 ```
-┌─ 选择：策略订单警报
+┌─ You chose: strategy order alerts
 │
-├─ ✅ 自动订单警报
+├─ ✅ Automatic order alerts
 │   │
-│   └─ 订单执行时自动触发
+│   └─ Auto-triggered on order execution
 │       ```pine
 │       //@version=6
-│       strategy("交易策略", overlay=true)
+│       strategy("Trading strategy", overlay=true)
 │
-│       // 订单填充时自动触发警报
+│       // Auto-trigger alert when order is filled
 │       if ta.crossover(close, ta.sma(close, 20))
 │           strategy.entry("Long", strategy.long,
-│                         alert_message="买入订单执行")
+│                         alert_message="Buy order executed")
 │
 │       if ta.crossunder(close, ta.sma(close, 20))
 │           strategy.entry("Short", strategy.short,
-│                         alert_message="卖出订单执行")
+│                         alert_message="Sell order executed")
 │       ```
 │
-├─ 🔧 自定义订单消息
+├─ 🔧 Custom order messages
 │   │
-│   ├─ 入场订单
+│   ├─ Entry orders
 │   │   ```pine
 │       strategy.entry(
 │           "Long",
@@ -342,13 +342,13 @@
 │           limit=entryPrice,
 │           stop=stopLoss,
 │           alert_message=
-│               "买入执行 - 价格: {{strategy.order.price}} " +
-│               "数量: {{strategy.order.size}} " +
-│               "类型: {{strategy.order.comment}}"
+│               "Buy executed - Price: {{strategy.order.price}} " +
+│               "Size: {{strategy.order.size}} " +
+│               "Type: {{strategy.order.comment}}"
 │       )
 │       ```
 │   │
-│   ├─ 出场订单
+│   ├─ Exit orders
 │   │   ```pine
 │       strategy.exit(
 │           "Exit Long",
@@ -356,13 +356,13 @@
 │           profit=100,
 │           loss=50,
 │           alert_message=
-│               "退出多头 - 盈亏: {{strategy.order.comment}}"
+│               "Exit long - P/L: {{strategy.order.comment}}"
 │       )
 │       ```
 │   │
-│   └─ 自定义字段
+│   └─ Custom fields
 │       ```pine
-│       // 使用 comment 传递额外信息
+│       // Use comment to pass extra info
 │       strategy.entry(
 │           "Trade",
 │           strategy.long,
@@ -371,162 +371,162 @@
 │       )
 │       ```
 │
-├─ 📊 可用模板变量
+├─ 📊 Available template variables
 │   │
-│   ├─ 订单信息
-│   │   - `{{strategy.order.price}}` - 执行价格
-│   │   - `{{strategy.order.size}}` - 订单数量
-│   │   - `{{strategy.order.comment}}` - 订单注释
-│   │   - `{{strategy.order.id}}` - 订单ID
+│   ├─ Order info
+│   │   - `{{strategy.order.price}}` - Execution price
+│   │   - `{{strategy.order.size}}` - Order size
+│   │   - `{{strategy.order.comment}}` - Order comment
+│   │   - `{{strategy.order.id}}` - Order ID
 │   │
-│   ├─ 策略信息
-│   │   - `{{strategy.position_size}}` - 当前仓位
-│   │   - `{{strategy.position_avg_price}}` - 平均价格
-│   │   - `{{strategy.closed_trades}}` - 已平仓交易数
+│   ├─ Strategy info
+│   │   - `{{strategy.position_size}}` - Current position size
+│   │   - `{{strategy.position_avg_price}}` - Average price
+│   │   - `{{strategy.closed_trades}}` - Closed trades count
 │   │
-│   ├─ 性能指标
-│   │   - `{{strategy.gross_profit}}` - 总利润
-│   │   - `{{strategy.gross_loss}}` - 总亏损
-│   │   - `{{strategy.netprofit}}` - 净利润
+│   ├─ Performance metrics
+│   │   - `{{strategy.gross_profit}}` - Gross profit
+│   │   - `{{strategy.gross_loss}}` - Gross loss
+│   │   - `{{strategy.netprofit}}` - Net profit
 │   │
-│   └─ 市场信息
-│       - `{{ticker}}` - 交易品种
-│       - `{{close}}` - 收盘价
-│       - `{{time}}` - 时间
+│   └─ Market info
+│       - `{{ticker}}` - Symbol
+│       - `{{close}}` - Close
+│       - `{{time}}` - Time
 │
-└─ 💡 高级用法
-    ├─ 条件警报消息
+└─ 💡 Advanced usage
+    ├─ Conditional alert messages
     │   ```pine
-    │   // 根据情况不同消息
+    │   // Different messages depending on context
     │   alertMsg = profit > 0 ?
-    │                "盈利 {{strategy.order.comment}}" :
-    │                "亏损 {{strategy.order.comment}}"
+    │                "Profit {{strategy.order.comment}}" :
+    │                "Loss {{strategy.order.comment}}"
     │   strategy.exit(..., alert_message=alertMsg)
     │   ```
     │
-    ├─ 动态计算
+    ├─ Dynamic calculations
     │   ```pine
-    │   // 包含计算值
+    │   // Include computed values
     │   riskReward = reward / risk
     │   strategy.entry(...,
     │       alert_message=
-    │           "风险收益比: " + str.tostring(riskReward, "#.##")
+    │           "Risk/Reward: " + str.tostring(riskReward, "#.##")
     │   )
     │   ```
     │
-    └─ 多语言支持
+    └─ Multi-language support
         ```pine
-        // 根据用户偏好
+        // Based on user preference
         alertMessage = language == "zh" ?
-                       "买入执行" :
+                       "Buy executed" :
                        "Buy executed"
         strategy.entry(..., alert_message=alertMessage)
         ```
 ```
 
-## 🔄 混合警报方案
+## 🔄 Mixed alert approach
 
 ```
-┌─ 选择：多种警报组合
+┌─ You chose: mixed alerts
 │
-├─ 📊 指标 + 策略组合
+├─ 📊 Indicator + Strategy combo
 │   └─ ```pine
 │       //@version=6
-│       indicator("混合警报示例", overlay=true)
+│       indicator("Mixed alert example", overlay=true)
 │
-│       // 1. alertcondition - 简单信号
+│       // 1. alertcondition - simple signal
 │       buySignal = ta.crossover(ta.sma(close, 10), ta.sma(close, 20))
-│       alertcondition(buySignal, "MA交叉信号")
+│       alertcondition(buySignal, "MA crossover signal")
 │
-│       // 2. alert() - 详细信息
+│       // 2. alert() - detailed info
 │       if buySignal and barstate.isconfirmed
 │           alert(
-│               "MA金叉确认 - 价格: " + str.tostring(close) +
-│               " 成交量: " + str.tostring(volume),
+│               "MA golden cross confirmed - Price: " + str.tostring(close) +
+│               " Volume: " + str.tostring(volume),
 │               alert.freq_once_per_bar_close
 │           )
 │       ```
 │
-├─ 🎯 分级警报系统
+├─ 🎯 Tiered alert system
 │   └─ ```pine
-│       // 三级警报系统
-│       level1Signal = rsi > 70  // 初级警告
-│       level2Signal = rsi > 80 and volumeSpike  // 中级警告
-│       level3Signal = rsi > 90 and divergence  // 高级警告
+│       // Three-level alert system
+│       level1Signal = rsi > 70  // Level 1 warning
+│       level2Signal = rsi > 80 and volumeSpike  // Level 2 warning
+│       level3Signal = rsi > 90 and divergence  // Level 3 warning
 │
-│       // 不同级别不同处理
+│       // Different handling by level
 │       if level1Signal
-│           alertcondition(true, "RSI超买警告")
+│           alertcondition(true, "RSI overbought warning")
 │
 │       if level2Signal
-│           alert("强烈超买信号", alert.freq_once_per_bar)
+│           alert("Strong overbought signal", alert.freq_once_per_bar)
 │
 │       if level3Signal
-│           alert("极端超买！考虑反向", alert.freq_all)
+│           alert("Extreme overbought! Consider reversal", alert.freq_all)
 │       ```
 │
-└─ 📈 多时间框架警报
+└─ 📈 Multi-timeframe alerts
     └─ ```pine
-        // 多时间框架确认
+        // Multi-timeframe confirmation
         m5Signal = request.security(syminfo.tickerid, "5", ta.rsi(close, 14))
         h1Signal = request.security(syminfo.tickerid, "60", ta.rsi(close, 14))
 
-        // 短期信号
+        // Short-term signal
         if ta.crossover(m5Signal, 30)
-            alertcondition(true, "M5 RSI突破30")
+            alertcondition(true, "M5 RSI crosses above 30")
 
-        // 多时间框架确认
+        // Multi-timeframe confirmation
         if m5Signal > 30 and h1Signal > 30
-            alert("多周期看涨确认", alert.freq_once_per_bar_close)
+            alert("Multi-timeframe bullish confirmation", alert.freq_once_per_bar_close)
         ```
 ```
 
-## 📋 警报测试清单
+## 📋 Alert testing checklist
 
-### 功能测试
-- [ ] 警报是否在预期条件下触发？
-- [ ] 消息内容是否正确？
-- [ ] 频率设置是否合适？
-- [ ] 是否避免误报？
+### Functional tests
+- [ ] Do alerts trigger under expected conditions?
+- [ ] Is message content correct?
+- [ ] Is the frequency setting appropriate?
+- [ ] Are false positives avoided?
 
-### 性能测试
-- [ ] 警报响应是否及时？
-- [ ] 是否过多警报影响性能？
-- [ ] 历史测试中表现如何？
+### Performance tests
+- [ ] Are alert responses timely?
+- [ ] Do excessive alerts impact performance?
+- [ ] How does it perform in historical tests?
 
-### 实用性测试
-- [ ] 警报信息是否足够？
-- [ ] 是否可操作？
-- [ ] 用户是否容易理解？
+### Usability tests
+- [ ] Is the alert information sufficient?
+- [ ] Is it actionable?
+- [ ] Is it easy for users to understand?
 
-## ⚠️ 常见问题
+## ⚠️ Common issues
 
-1. **警报不触发**
-   - 检查是否在实时K线
-   - 确认警报已激活
-   - 验证条件逻辑
+1. **Alerts not triggering**
+   - Ensure you're on realtime bars
+   - Confirm the alert is enabled
+   - Verify the condition logic
 
-2. **重复警报**
-   - 调整频率设置
-   - 添加冷却期
-   - 使用 barstate.isconfirmed
+2. **Duplicate alerts**
+   - Adjust frequency settings
+   - Add a cooldown
+   - Use barstate.isconfirmed
 
-3. **消息格式问题**
-   - 检查变量名
-   - 验证字符串拼接
-   - 控制消息长度
+3. **Message formatting issues**
+   - Check variable names
+   - Validate string concatenation
+   - Control message length
 
-4. **性能问题**
-   - 减少警报检查频率
-   - 优化条件逻辑
-   - 避免复杂计算
+4. **Performance issues**
+   - Reduce alert check frequency
+   - Optimize condition logic
+   - Avoid heavy computations
 
-## 💡 总结
+## 💡 Summary
 
-| 警报类型 | 适用场景 | 优点 | 缺点 |
+| Alert type | Applicable scenarios | Pros | Cons |
 |---------|---------|------|------|
-| alertcondition() | 简单条件，用户UI选择 | 简单，用户可控 | 消息静态，功能有限 |
-| alert() | 动态消息，复杂条件 | 灵活，消息动态 | 需要编程实现 |
-| 订单警报 | 策略交易 | 自动触发，详细信息 | 仅限策略使用 |
+| alertcondition() | Simple conditions, user selects in UI | Simple, user-controlled | Static messages, limited features |
+| alert() | Dynamic messages, complex conditions | Flexible, dynamic messages | Requires coding |
+| Order alerts | Strategy trading | Auto-triggered, detailed info | Strategy-only |
 
-选择警报方式的关键：**匹配需求复杂度，考虑用户体验，保证可靠性**。
+Key to choosing an alert approach: **match requirement complexity, consider user experience, and ensure reliability**.

@@ -150,78 +150,78 @@ ma20 = ta.sma(close, 20)
 ma50 = ta.sma(close, 50)  // 一致的命名
 ```
 
-## 📝 代码审查清单
+## 📝 Code review checklist
 
-### ✅ 提交前检查
+### ✅ Pre-commit checks
 
-1. **重绘检查**
-   - [ ] request.security() 是否有偏移？
-   - [ ] 是否等待 barstate.isconfirmed？
-   - [ ] 是否使用了 timenow 进行历史判断？
+1. Repainting checks
+   - [ ] Is there an offset in request.security()?
+   - [ ] Do you wait for barstate.isconfirmed?
+   - [ ] Do you use timenow for historical checks?
 
-2. **性能检查**
-   - [ ] 循环是否有重复计算？
-   - [ ] 数组是否会无限增长？
-   - [ ] request.security() 调用是否合理？
+2. Performance checks
+   - [ ] Do loops perform repeated calculations?
+   - [ ] Do arrays grow without bound?
+   - [ ] Are request.security() calls reasonable?
 
-3. **逻辑检查**
-   - [ ] 条件顺序是否正确？
-   - [ ] 状态是否一致？
-   - [ ] 是否处理了所有边界情况？
+3. Logic checks
+   - [ ] Is the condition order correct?
+   - [ ] Is state consistent?
+   - [ ] Are all edge cases handled?
 
-4. **类型检查**
-   - [ ] 是否有类型转换？
-   - [ ] 数组类型是否一致？
-   - [ ] 是否处理了 na 值？
+4. Type checks
+   - [ ] Any type casts?
+   - [ ] Are array types consistent?
+   - [ ] Are na values handled?
 
-5. **测试检查**
-   - [ ] 在不同时间框架测试了吗？
-   - [ ] 历史数据表现如何？
-   - [ ] 实时表现是否符合预期？
+5. Test checks
+   - [ ] Tested on different timeframes?
+   - [ ] How does it perform historically?
+   - [ ] Does real-time behavior meet expectations?
 
-## 🎯 快速修复模板
+## 🎯 Quick fix templates
 
-### 修复重绘
+### Fix repainting
 ```pine
-// 添加偏移
+// Add an offset
 value[1]
 
-// 添加确认
+// Add confirmation
 if condition and barstate.isconfirmed
 
-// 设置lookahead
+// Set lookahead
 request.security(..., lookahead=barmerge.lookahead_on)
 ```
 
-### 修复性能
+### Fix performance
 ```pine
-// 缓存计算
+// Cache computation
 var cachedValue = na
 if updateCondition
     cachedValue := expensiveCalculation()
 
-// 限制数组
+// Limit array size
 if array.size(arr) > maxSize
     array.shift(arr)
 ```
 
-### 修复逻辑
+### Fix logic
 ```pine
-// 使用括号
+// Use parentheses
 condition = (a and b) or (c and d)
 
-// 处理na
+// Handle na
 if not na(value)
-    // 使用value
+    // Use value
 ```
 
-## 💡 记住这些
+## 💡 Remember these
 
-1. **如果回测太完美，一定有重绘问题**
-2. **性能问题往往来自循环和数组**
-3. **逻辑错误最难发现，多测试**
-4. **类型错误最容易，编译器会帮你**
-5. **好的代码 = 简单 + 清晰 + 可测试**
+1. If backtests look too perfect, there's probably repainting
+2. Performance issues often come from loops and arrays
+3. Logic errors are hardest to spot; test more
+4. Type errors are easiest; the compiler will help
+5. Good code = Simple + Clear + Testable
 
 ## 🚀 进阶建议
 

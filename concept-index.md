@@ -1,174 +1,172 @@
-# Pine Script v6 概念索引
+# Pine Script v6 Concept Index
 
-## 目录
-- [核心概念](#核心概念)
-- [语言特性](#语言特性)
-- [数据类型](#数据类型)
-- [内置函数](#内置函数)
-- [脚本类型](#脚本类型)
-- [可视化](#可视化)
-- [高级功能](#高级功能)
-- [常见问题](#常见问题)
+## Table of Contents
+- [Core Concepts](#core-concepts)
+- [Quick Lookup by Category](#quick-lookup-by-category)
+- [Learning Paths](#learning-paths)
+- [Quick Reference](#quick-reference)
+- [Related Resources](#related-resources)
+- [Search Tips](#search-tips)
 
 ---
 
-## 核心概念
+## Core Concepts
 
 ### A
-- **Alerts (警报)** - [📖 文档](pine-script-docs/concepts/alerts.md) | [❌ 反例](anti-patterns/alert-mistakes.md) | [🌳 决策树](decision-trees/alert-implementation.md)
-- **Arrays (数组)** - [📖 文档](pine-script-docs/language/arrays.md) | [❌ 反例](anti-patterns/data-structure-misuse.md) | [🌳 决策树](decision-trees/data-structure-selection.md)
-- **Annotations (注释)** - [📖 文档](pine-script-reference/Annotations.md)
+- **Alerts** — [📖 Docs](pine-script-docs/concepts/alerts.md) | [❌ Anti-patterns](anti-patterns/alert-mistakes.md) | [🌳 Decision Tree](decision-trees/alert-implementation.md)
+- **Arrays** — [📖 Docs](pine-script-docs/language/arrays.md) | [❌ Anti-patterns](anti-patterns/data-structure-misuse.md) | [🌳 Decision Tree](decision-trees/data-structure-selection.md)
+- **Annotations** — [📖 Reference](pine-script-reference/Annotations.md)
 
 ### B
-- **Bar States (K线状态)** - [📖 文档](pine-script-docs/concepts/bar-states.md)
-- **Built-ins (内置变量)** - [📖 文档](pine-script-docs/language/built-ins.md)
+- **Bar States** — [📖 Docs](pine-script-docs/concepts/bar-states.md)
+- **Built-ins** — [📖 Docs](pine-script-docs/language/built-ins.md)
 
 ### C
-- **Chart Information (图表信息)** - [📖 文档](pine-script-docs/concepts/chart-information.md)
-- **Conditional Structures (条件结构)** - [📖 文档](pine-script-docs/language/conditional-structures.md) | [❌ 反例](anti-patterns/logic-errors.md)
-- **Constants (常量)** - [📖 文档](pine-script-reference/Constants.md)
-- **Concepts (概念)** - [📖 文档](pine-script-docs/concepts/)
+- **Chart Information** — [📖 Docs](pine-script-docs/concepts/chart-information.md)
+- **Conditional Structures** — [📖 Docs](pine-script-docs/language/conditional-structures.md) | [❌ Anti-patterns](anti-patterns/logic-errors.md)
+- **Constants** — [📖 Reference](pine-script-reference/Constants.md)
+- **Concepts** — [📖 Docs](pine-script-docs/concepts/)
 
 ### D
-- **Data Structures (数据结构)** - [🌳 决策树](decision-trees/data-structure-selection.md) | [❌ 反例](anti-patterns/data-structure-misuse.md)
+- **Data Structures** — [🌳 Decision Tree](decision-trees/data-structure-selection.md) | [❌ Anti-patterns](anti-patterns/data-structure-misuse.md)
 
 ### E
-- **Enums (枚举)** - [📖 文档](pine-script-docs/language/enums.md)
-- **Execution Model (执行模型)** - [📖 文档](pine-script-docs/language/execution-model.md)
+- **Enums** — [📖 Docs](pine-script-docs/language/enums.md)
+- **Execution Model** — [📖 Docs](pine-script-docs/language/execution-model.md)
 
 ### F
-- **Functions (函数)** - [📖 文档](pine-script-docs/language/user-defined-functions.md) | [📖 参考](pine-script-reference/Functions.md)
+- **Functions** — [📖 Docs](pine-script-docs/language/user-defined-functions.md) | [📖 Reference](pine-script-reference/Functions.md)
 
 ### I
-- **Identifiers (标识符)** - [📖 文档](pine-script-docs/language/identifiers.md)
-- **Inputs (输入参数)** - [📖 文档](pine-script-docs/concepts/inputs.md)
-- **Indicator (指标)** - [🌳 决策树](decision-trees/script-type-selection.md)
+- **Identifiers** — [📖 Docs](pine-script-docs/language/identifiers.md)
+- **Inputs** — [📖 Docs](pine-script-docs/concepts/inputs.md)
+- **Indicator** — [🌳 Decision Tree](decision-trees/script-type-selection.md)
 
 ### L
-- **Language (语言)** - [📖 文档](pine-script-docs/language/)
-- **Libraries (库)** - [📖 文档](pine-script-docs/concepts/libraries.md)
-- **Loops (循环)** - [📖 文档](pine-script-docs/language/loops.md) | [❌ 反例](anti-patterns/performance-traps.md)
+- **Language** — [📖 Docs](pine-script-docs/language/)
+- **Libraries** — [📖 Docs](pine-script-docs/concepts/libraries.md)
+- **Loops** — [📖 Docs](pine-script-docs/language/loops.md) | [❌ Anti-patterns](anti-patterns/performance-traps.md)
 
 ### M
-- **Maps (映射)** - [🌳 决策树](decision-trees/data-structure-selection.md) | [❌ 反例](anti-patterns/data-structure-misuse.md)
-- **Matrices (矩阵)** - [🌳 决策树](decision-trees/data-structure-selection.md) | [❌ 反例](anti-patterns/data-structure-misuse.md)
-- **Methods (方法)** - [📖 文档](pine-script-docs/language/methods.md)
+- **Maps** — [🌳 Decision Tree](decision-trees/data-structure-selection.md) | [❌ Anti-patterns](anti-patterns/data-structure-misuse.md)
+- **Matrices** — [🌳 Decision Tree](decision-trees/data-structure-selection.md) | [❌ Anti-patterns](anti-patterns/data-structure-misuse.md)
+- **Methods** — [📖 Docs](pine-script-docs/language/methods.md)
 
 ### O
-- **Objects (对象)** - [📖 文档](pine-script-docs/language/objects.md)
-- **Operators (运算符)** - [📖 文档](pine-script-docs/language/operators.md) | [📖 参考](pine-script-reference/Operators.md)
+- **Objects** — [📖 Docs](pine-script-docs/language/objects.md)
+- **Operators** — [📖 Docs](pine-script-docs/language/operators.md) | [📖 Reference](pine-script-reference/Operators.md)
 
 ### P
-- **Performance (性能)** - [❌ 反例](anti-patterns/performance-traps.md) | [🌳 决策树](decision-trees/performance-optimization.md)
-- **Plotting (绘图)** - [📖 文档](pine-script-docs/visuals/plots.md) | [🌳 决策树](decision-trees/visualization-selection.md)
-- **Properties (属性)** - [📖 文档](pine-script-docs/visuals/overview.md)
+- **Performance** — [❌ Anti-patterns](anti-patterns/performance-traps.md) | [🌳 Decision Tree](decision-trees/performance-optimization.md)
+- **Plotting** — [📖 Docs](pine-script-docs/visuals/plots.md) | [🌳 Decision Tree](decision-trees/visualization-selection.md)
+- **Properties** — [📖 Docs](pine-script-docs/visuals/overview.md)
 
 ### R
-- **Repainting (重绘)** - [📖 文档](pine-script-docs/concepts/repainting.md) | [❌ 反例](anti-patterns/repainting-errors.md) | [🌳 决策树](decision-trees/avoid-repainting.md)
-- **Reference (参考)** - [📖 文档](pine-script-reference/)
-- **Request Security (跨周期请求)** - [🌳 决策树](decision-trees/multi-timeframe.md) | [❌ 反例](anti-patterns/multi-timeframe-errors.md)
+- **Repainting** — [📖 Docs](pine-script-docs/concepts/repainting.md) | [❌ Anti-patterns](anti-patterns/repainting-errors.md) | [🌳 Decision Tree](decision-trees/avoid-repainting.md)
+- **Reference** — [📖 Reference](pine-script-reference/)
+- **Request Security** — [🌳 Decision Tree](decision-trees/multi-timeframe.md) | [❌ Anti-patterns](anti-patterns/multi-timeframe-errors.md)
 
 ### S
-- **Script Structure (脚本结构)** - [📖 文档](pine-script-docs/language/script-structure.md)
-- **Sessions (交易时段)** - [📖 文档](pine-script-docs/concepts/sessions.md)
-- **Strategies (策略)** - [📖 文档](pine-script-docs/concepts/strategies.md) | [🌳 决策树](decision-trees/script-type-selection.md) | [❌ 反例](anti-patterns/strategy-mistakes.md)
-- **Strings (字符串)** - [📖 文档](pine-script-docs/concepts/strings.md)
+- **Script Structure** — [📖 Docs](pine-script-docs/language/script-structure.md)
+- **Sessions** — [📖 Docs](pine-script-docs/concepts/sessions.md)
+- **Strategies** — [📖 Docs](pine-script-docs/concepts/strategies.md) | [🌳 Decision Tree](decision-trees/script-type-selection.md) | [❌ Anti-patterns](anti-patterns/strategy-mistakes.md)
+- **Strings** — [📖 Docs](pine-script-docs/concepts/strings.md)
 
 ### T
-- **Time (时间)** - [📖 文档](pine-script-docs/concepts/time.md)
-- **Timeframes (时间框架)** - [📖 文档](pine-script-docs/concepts/timeframes.md)
-- **Type System (类型系统)** - [📖 文档](pine-script-docs/language/type-system.md) | [📖 参考](pine-script-reference/Types.md)
+- **Time** — [📖 Docs](pine-script-docs/concepts/time.md)
+- **Timeframes** — [📖 Docs](pine-script-docs/concepts/timeframes.md)
+- **Type System** — [📖 Docs](pine-script-docs/language/type-system.md) | [📖 Reference](pine-script-reference/Types.md)
 
 ### V
-- **Variable Declarations (变量声明)** - [📖 文档](pine-script-docs/language/variable-declarations.md) | [📖 参考](pine-script-reference/Variables.md)
-- **Variables (变量)** - [📖 文档](pine-script-docs/language/variable-declarations.md)
-- **Visuals (可视化)** - [📖 文档](pine-script-docs/visuals/) | [🌳 决策树](decision-trees/visualization-selection.md)
+- **Variable Declarations** — [📖 Docs](pine-script-docs/language/variable-declarations.md) | [📖 Reference](pine-script-reference/Variables.md)
+- **Variables** — [📖 Docs](pine-script-docs/language/variable-declarations.md)
+- **Visuals** — [📖 Docs](pine-script-docs/visuals/) | [🌳 Decision Tree](decision-trees/visualization-selection.md)
 
 ---
 
-## 按类别快速查找
+## Quick Lookup by Category
 
-### 🔧 语言基础
-- [执行模型](pine-script-docs/language/execution-model.md) - Pine Script 如何运行
-- [类型系统](pine-script-docs/language/type-system.md) - 类型与限定符
-- [脚本结构](pine-script-docs/language/script-structure.md) - 脚本组织
-- [变量声明](pine-script-docs/language/variable-declarations.md) - var, varip, simple等
-- [标识符](pine-script-docs/language/identifiers.md) - 命名规则
+### 🔧 Language Basics
+- [Execution Model](pine-script-docs/language/execution-model.md) — How Pine Script runs
+- [Type System](pine-script-docs/language/type-system.md) — Types and qualifiers
+- [Script Structure](pine-script-docs/language/script-structure.md) — Script organization
+- [Variable Declarations](pine-script-docs/language/variable-declarations.md) — var, varip, simple, etc.
+- [Identifiers](pine-script-docs/language/identifiers.md) — Naming rules
 
-### 📊 数据处理
-- [数组](pine-script-docs/language/arrays.md) - 一维数据集合
-- [映射](knowledge-graph.json#maps) - 键值对存储 (v6)
-- [矩阵](knowledge-graph.json#matrices) - 二维数据 (v6)
-- [循环](pine-script-docs/language/loops.md) - 迭代处理
-- [内置变量](pine-script-docs/language/built-ins.md) - open, high, low, close等
+### 📊 Data Handling
+- [Arrays](pine-script-docs/language/arrays.md) — One-dimensional collections
+- [Maps](knowledge-graph.json#maps) — Key–value storage (v6)
+- [Matrices](knowledge-graph.json#matrices) — Two-dimensional data (v6)
+- [Loops](pine-script-docs/language/loops.md) — Iterative processing
+- [Built-ins](pine-script-docs/language/built-ins.md) — open, high, low, close, etc.
 
-### 🎯 控制流
-- [条件结构](pine-script-docs/language/conditional-structures.md) - if, switch
-- [循环](pine-script-docs/language/loops.md) - for, while
-- [运算符](pine-script-docs/language/operators.md) - 数学、比较、逻辑
-- [函数](pine-script-docs/language/user-defined-functions.md) - 自定义函数
+### 🎯 Control Flow
+- [Conditional Structures](pine-script-docs/language/conditional-structures.md) — if, switch
+- [Loops](pine-script-docs/language/loops.md) — for, while
+- [Operators](pine-script-docs/language/operators.md) — arithmetic, comparison, logic
+- [Functions](pine-script-docs/language/user-defined-functions.md) — user-defined functions
 
-### 📈 脚本类型
-- [指标](decision-trees/script-type-selection.md#indicator) - 分析工具
-- [策略](decision-trees/script-type-selection.md#strategy) - 交易模拟
-- [库](decision-trees/script-type-selection.md#library) - 代码复用
+### 📈 Script Types
+- [Indicator](decision-trees/script-type-selection.md#indicator) — Analysis tools
+- [Strategy](decision-trees/script-type-selection.md#strategy) — Trading simulation
+- [Library](decision-trees/script-type-selection.md#library) — Code reuse
 
-### 🎨 可视化
-- [绘图](pine-script-docs/visuals/plots.md) - 基础绘图
-- [背景](pine-script-docs/visuals/backgrounds.md) - 背景色
-- [线条和框](pine-script-docs/visuals/lines-and-boxes.md) - 几何图形
-- [表格](pine-script-docs/visuals/tables.md) - 数据表格
-- [标签和形状](pine-script-docs/visuals/text-and-shapes.md) - 文本和图形
+### 🎨 Visualization
+- [Plots](pine-script-docs/visuals/plots.md) — Basic plotting
+- [Backgrounds](pine-script-docs/visuals/backgrounds.md) — Background color
+- [Lines and Boxes](pine-script-docs/visuals/lines-and-boxes.md) — Geometric shapes
+- [Tables](pine-script-docs/visuals/tables.md) — Data tables
+- [Text and Shapes](pine-script-docs/visuals/text-and-shapes.md) — Text and graphics
 
-### ⚠️ 常见问题
-- [重绘](anti-patterns/repainting-errors.md) - 避免重绘问题
-- [性能](anti-patterns/performance-traps.md) - 优化脚本性能
-- [逻辑错误](anti-patterns/logic-errors.md) - 避免逻辑陷阱
-- [数据结构误用](anti-patterns/data-structure-misuse.md) - 正确使用数据结构
-
----
-
-## 学习路径建议
-
-### 🌱 初学者路径 (1-2周)
-1. [脚本结构](pine-script-docs/language/script-structure.md) - 了解基础
-2. [类型系统基础](pine-script-docs/language/type-system.md#types) - 基本类型
-3. [变量声明](pine-script-docs/language/variable-declarations.md) - 存储数据
-4. [条件结构](pine-script-docs/language/conditional-structures.md) - 控制逻辑
-5. [内置变量](pine-script-docs/language/built-ins.md#built-in-variables) - 使用OHLCV
-6. [基础绘图](pine-script-docs/visuals/plots.md) - 显示数据
-7. [输入参数](pine-script-docs/concepts/inputs.md) - 用户交互
-8. [创建第一个指标](decision-trees/script-type-selection.md#indicator) - 实践
-
-### 🌿 中级路径 (2-4周)
-1. [执行模型](pine-script-docs/language/execution-model.md) - 深入理解
-2. [时间序列](pine-script-docs/language/execution-model.md#time-series) - 历史数据
-3. [数组](pine-script-docs/language/arrays.md) - 数据集合
-4. [函数](pine-script-docs/language/user-defined-functions.md) - 代码复用
-5. [循环](pine-script-docs/language/loops.md) - 迭代计算
-6. [警报](pine-script-docs/concepts/alerts.md) - 通知系统
-7. [策略基础](pine-script-docs/concepts/strategies.md) - 交易逻辑
-8. [避免重绘](decision-trees/avoid-repainting.md) - 代码稳定性
-
-### 🌳 高级路径 (1-2月)
-1. [类型系统进阶](pine-script-docs/language/type-system.md#qualifiers) - 理解限定符
-2. [映射和矩阵](decision-trees/data-structure-selection.md) - v6新特性
-3. [库开发](pine-script-docs/concepts/libraries.md) - 代码组织
-4. [跨周期数据](decision-trees/multi-timeframe.md) - 多时间框架
-5. [性能优化](decision-trees/performance-optimization.md) - 提升效率
-6. [高级可视化](decision-trees/visualization-selection.md) - 专业图表
-7. [反模式学习](anti-patterns/) - 避免错误
-8. [知识图谱](knowledge-graph.json) - 概念关联
+### ⚠️ Common Issues
+- [Repainting](anti-patterns/repainting-errors.md) — Avoid repainting issues
+- [Performance](anti-patterns/performance-traps.md) — Optimize script performance
+- [Logic Errors](anti-patterns/logic-errors.md) — Avoid logic pitfalls
+- [Data Structure Misuse](anti-patterns/data-structure-misuse.md) — Use data structures correctly
 
 ---
 
-## 快速参考
+## Learning Paths
 
-### 🎯 常用函数速查
+### 🌱 Beginner Path (1–2 weeks)
+1. [Script Structure](pine-script-docs/language/script-structure.md) — Understand the basics
+2. [Type System Basics](pine-script-docs/language/type-system.md#types) — Basic types
+3. [Variable Declarations](pine-script-docs/language/variable-declarations.md) — Store data
+4. [Conditional Structures](pine-script-docs/language/conditional-structures.md) — Control logic
+5. [Built-ins](pine-script-docs/language/built-ins.md#built-in-variables) — Use OHLCV
+6. [Basic Plotting](pine-script-docs/visuals/plots.md) — Display data
+7. [Inputs](pine-script-docs/concepts/inputs.md) — User interaction
+8. [Create Your First Indicator](decision-trees/script-type-selection.md#indicator) — Practice
 
-#### 技术指标
+### 🌿 Intermediate Path (2–4 weeks)
+1. [Execution Model](pine-script-docs/language/execution-model.md) — Deep understanding
+2. [Time Series](pine-script-docs/language/execution-model.md#time-series) — Historical data
+3. [Arrays](pine-script-docs/language/arrays.md) — Data collections
+4. [Functions](pine-script-docs/language/user-defined-functions.md) — Code reuse
+5. [Loops](pine-script-docs/language/loops.md) — Iterative computation
+6. [Alerts](pine-script-docs/concepts/alerts.md) — Notification system
+7. [Strategy Basics](pine-script-docs/concepts/strategies.md) — Trading logic
+8. [Avoid Repainting](decision-trees/avoid-repainting.md) — Code stability
+
+### 🌳 Advanced Path (1–2 months)
+1. [Type System — Advanced](pine-script-docs/language/type-system.md#qualifiers) — Qualifiers
+2. [Maps and Matrices](decision-trees/data-structure-selection.md) — New in v6
+3. [Library Development](pine-script-docs/concepts/libraries.md) — Code organization
+4. [Multi-timeframe Data](decision-trees/multi-timeframe.md) — Multiple timeframes
+5. [Performance Optimization](decision-trees/performance-optimization.md) — Improve efficiency
+6. [Advanced Visualization](decision-trees/visualization-selection.md) — Professional charts
+7. [Anti-patterns](anti-patterns/) — Avoid mistakes
+8. [Knowledge Graph](knowledge-graph.json) — Concept relationships
+
+---
+
+## Quick Reference
+
+### Common Function Cheatsheet
+
+#### Technical indicators
 ```pine
-// 移动平均
+// Moving averages
 ta.sma(source, length)
 ta.ema(source, length)
 ta.wma(source, length)
@@ -183,95 +181,95 @@ ta.rsi(source, length)
 ta.atr(length)
 ```
 
-#### 数组操作
+#### Array operations
 ```pine
-// 创建
+// Create
 arr = array.new<float>(size, initialValue)
 arr = array.from(val1, val2, val3)
 
-// 添加
+// Append
 array.push(arr, value)
 array.unshift(arr, value)
 
-// 访问
+// Access
 value = array.get(arr, index)
 value = arr[index]  // v6+
 
-// 统计
+// Statistics
 sum = array.sum(arr)
 avg = array.avg(arr)
 max = array.max(arr)
 ```
 
-#### 映射操作 (v6)
+#### Map operations (v6)
 ```pine
-// 创建
+// Create
 m = map.new<string, float>()
 
-// 添加
+// Put
 map.put(m, "key", value)
 
-// 获取
+// Get
 value = map.get(m, "key", defaultValue)
 
-// 检查
+// Check
 exists = map.contains(m, "key")
 ```
 
-### ⚡ 性能提示
+### ⚡ Performance Tips
 
-- ✅ 使用 `var` 缓存计算结果
-- ✅ 限制数组大小
-- ✅ 使用内置函数代替循环
-- ✅ 缓存 `request.security()` 调用
-- ❌ 避免深度嵌套循环
-- ❌ 不要在循环中重复计算
+- ✅ Use `var` to cache results
+- ✅ Limit array sizes
+- ✅ Prefer built-ins over loops
+- ✅ Cache `request.security()` calls
+- ❌ Avoid deep nested loops
+- ❌ Don't recompute inside loops
 
-### 🚨 重绘检查
+### 🚨 Repainting Checklist
 
-- ✅ 使用 `[1]` 偏移历史数据
-- ✅ 使用 `barstate.isconfirmed`
-- ✅ 设置 `lookahead=barmerge.lookahead_on`
-- ❌ 不要在实时K线使用 `close/high/low`
-- ❌ 不要使用 `timenow` 进行历史判断
-
----
-
-## 相关资源
-
-### 📚 文档
-- [官方文档](https://www.tradingview.com/pine-script-docs/)
-- [函数参考](pine-script-reference/)
-- [概念说明](pine-script-docs/)
-
-### 🛠️ 工具
-- [决策树](decision-trees/) - 做出最佳选择
-- [反例库](anti-patterns/) - 避免常见错误
-- [知识图谱](knowledge-graph.json) - 理解概念关系
-
-### 💡 学习资源
-- [示例代码](examples/) - 实用示例
-- [最佳实践](common-mistakes-summary.md) - 编码规范
-- [常见问题](常见问题.md) - FAQ
+- ✅ Use `[1]` to offset historical data
+- ✅ Use `barstate.isconfirmed`
+- ✅ Set `lookahead=barmerge.lookahead_on`
+- ❌ Don't use `close/high/low` on realtime bars
+- ❌ Don't use `timenow` for historical decisions
 
 ---
 
-## 搜索提示
+## Related Resources
 
-### 按功能搜索
-- **绘图**: plot, plotshape, label, line
-- **策略**: strategy.entry, strategy.exit, strategy.position_size
-- **数据**: array, map, matrix, request.security
-- **时间**: time, timenow, barstate.isconfirmed
-- **类型**: int, float, string, bool, color
+### Documentation
+- [Official Docs](https://www.tradingview.com/pine-script-docs/)
+- [Function Reference](pine-script-reference/)
+- [Concepts](pine-script-docs/)
 
-### 按问题搜索
-- **重绘**: repainting, future leak, lookahead
-- **性能**: performance, loop, calculation
-- **错误**: error, na, runtime error
-- **语法**: syntax, declaration, scope
+### Tools
+- [Decision Trees](decision-trees/) — Make optimal choices
+- [Anti-patterns](anti-patterns/) — Avoid common mistakes
+- [Knowledge Graph](knowledge-graph.json) — Understand concept relationships
+
+### Learning Resources
+- [Examples](examples/) — Practical examples
+- [Best Practices](common-mistakes-summary.md): Coding conventions
+- [FAQ](常见问题.md): FAQ
 
 ---
 
-*最后更新: 2025-10-13*
-*版本: Pine Script v6*
+## Search Tips
+
+### Search by feature
+- **Plotting**: plot, plotshape, label, line
+- **Strategy**: strategy.entry, strategy.exit, strategy.position_size
+- **Data**: array, map, matrix, request.security
+- **Time**: time, timenow, barstate.isconfirmed
+- **Types**: int, float, string, bool, color
+
+### Search by issue
+- **Repainting**: repainting, future leak, lookahead
+- **Performance**: performance, loop, calculation
+- **Errors**: error, na, runtime error
+- **Syntax**: syntax, declaration, scope
+
+---
+
+*Last updated: 2025-10-13*
+*Version: Pine Script v6*

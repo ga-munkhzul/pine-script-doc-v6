@@ -1,271 +1,272 @@
-# 避免重绘决策树
+# Decision Tree: Avoid Repainting
 
-## ⚠️ 起始问题：我的脚本需要避免重绘吗？
+## ⚠️ Starting question: Does my script need to avoid repainting?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│   🎯 重绘的定义：历史K线与实时K线计算结果不一致      │
+│   🎯 Repainting definition: results differ between  │
+│   historical bars and realtime bars                 │
 └─────────────────────────────────────────────────────┘
     │
-    └─ 🤔 你的使用场景是什么？
+    └─ 🤔 What's your use case?
         │
-        ├─ 实时交易/警报
-        │   └─ ✅ **必须避免重绘**
+        ├─ Live trading/alerts
+        │   └─ ✅ Must avoid repainting
         │       ↓
         │
-        └─ 历史分析/回测
-            └─ ➖ **可以接受部分重绘**
+        └─ Historical analysis/backtesting
+            └─ ➖ Some repainting is acceptable
 ```
 
-## 🚫 必须避免重绘的决策路径
+## 🚫 Path when repainting must be avoided
 
 ```
-┌─ 你选择：必须避免重绘
+┌─ You chose: Must avoid repainting
 │
-├─ 📊 信号确认时机？
+├─ 📊 When to confirm signals?
 │   │
-│   ├─ 可以等到K线收盘
-│   │   └─ ✅ **方案1：使用已确认K线**
+│   ├─ Can wait until bar close
+│   │   └─ ✅ Approach 1: Use confirmed bars
 │   │       ```pine
-│   │       // 使用前一根K线的收盘价（已确认）
+│   │       // Use previous bar's values (confirmed)
 │   │       confirmedClose = close[1]
 │   │       confirmedHigh = high[1]
 │   │       ```
 │   │
-│   └─ 需要当前K线信号
-│       └─ ✅ **方案2：使用 barstate.isconfirmed**
+│   └─ Need current bar signal
+│       └─ ✅ Approach 2: Use barstate.isconfirmed
 │           ```pine
-│           // 等当前K线收盘确认
+│           // Wait for the current bar to close
 │           buySignal = ta.crossover(close, ma) and barstate.isconfirmed
 │           ```
 │
-├─ 🔔 警报实现？
+├─ 🔔 Alerts?
 │   │
-│   ├─ 简单条件警报
-│   │   └─ ✅ **使用 alertcondition + barstate.isconfirmed**
+│   ├─ Simple condition alert
+│   │   └─ ✅ Use alertcondition + barstate.isconfirmed
 │   │       ```pine
 │   │       condition = ta.crossover(close[1], ma[1])
-│   │       alertcondition(condition, "金叉信号")
+│   │       alertcondition(condition, "Golden cross signal")
 │   │       ```
 │   │
-│   └─ 复杂消息警报
-│       └─ ✅ **使用 alert() + 频率控制**
+│   └─ Complex message alert
+│       └─ ✅ Use alert() + frequency control
 │           ```pine
 │           if buySignal and barstate.isconfirmed
-│               alert("买入确认: " + str.tostring(close),
+│               alert("Buy confirmed: " + str.tostring(close),
 │                      alert.freq_once_per_bar_close)
 │           ```
 │
-├─ 📈 指标计算？
+├─ 📈 Indicator calculations?
 │   │
-│   ├─ 使用实时数据
-│   │   └─ ⚠️ **风险：会重绘**
+│   ├─ Using realtime data
+│   │   └─ ⚠️ Risk: will repaint
 │   │       ```pine
-│   │       // 这会重绘！
-│   │       ma = ta.sma(close, 20)  // close 在实时K线会变化
+│   │       // This will repaint!
+│   │       ma = ta.sma(close, 20)  // close changes on realtime bars
 │   │       ```
 │   │
-│   └─ 使用确认数据
-│       └─ ✅ **安全方案**
+│   └─ Use confirmed data
+│       └─ ✅ Safe approach
 │           ```pine
-│           // 不会重绘
+│           // Will not repaint
 │           ma = ta.sma(close, 20)
-│           confirmedMA = ma[1]  // 使用已确认的MA值
+│           confirmedMA = ma[1]  // Use confirmed MA value
 │           ```
 │
-└─ 🔄 跨周期数据？
+└─ 🔄 Multi-timeframe (MTF) data?
     │
-    ├─ 需要其他时间框架数据
-    │   └─ ✅ **安全的 request.security() 使用**
+    ├─ Need other timeframe data
+    │   └─ ✅ Safe use of request.security()
     │       ```pine
-    │       // 正确：使用偏移避免未来泄漏
+    │       // Correct: use offset to avoid future leak
     │       higherTF = request.security(syminfo.tickerid, "1D",
     │                                  close[1], lookahead=barmerge.lookahead_on)
     │       ```
     │
-    └─ 使用默认设置
-        └─ ⚠️ **危险：可能重绘**
+    └─ Using defaults
+        └─ ⚠️ Danger: may repaint
             ```pine
-            // 错误：会导致未来泄漏
+            // Wrong: causes future leak
             higherTF = request.security(syminfo.tickerid, "1D", close)
             ```
 ```
 
-## 📊 可接受重绘的决策路径
+## 📊 Path when some repainting is acceptable
 
 ```
-┌─ 你选择：可接受部分重绘
+┌─ You chose: Some repainting is acceptable
 │
-├─ 📈 哪种重绘类型？
+├─ 📈 Which repainting type?
 │   │
-│   ├─ 实时指标波动（如MACD、RSI）
-│   │   └─ ✅ **可接受：正常现象**
-│   │       💡 说明：大多数指标都会在实时K线波动
+│   ├─ Realtime indicator fluctuations (e.g., MACD, RSI)
+│   │   └─ ✅ Acceptable: expected behavior
+│   │       💡 Note: most indicators fluctuate on realtime bars
 │   │
-│   ├─ 成交量分析
-│   │   └─ ✅ **可接受：需要实时数据**
+│   ├─ Volume analysis
+│   │   └─ ✅ Acceptable: requires realtime data
 │   │
-│   ├─ 价格水平显示
-│   │   └─ ✅ **可接受：实时更新有价值**
+│   ├─ Price level display
+│   │   └─ ✅ Acceptable: realtime update is valuable
 │   │
-│   └─ 历史信号重定位
-│       └─ ❌ **不可接受：误导性**
-│           💡 解决：使用 var 或 fixed 位置
+│   └─ Historical signal repositioning
+│       └─ ❌ Not acceptable: misleading
+│           💡 Fix: use var or fixed position
 │           ```pine
-│           // 保存信号位置，避免重定位
+│           // Persist signal price to avoid moving
 │           var float signalPrice = na
 │           if buySignal and na(signalPrice)
 │               signalPrice := close
 │           ```
 │
-├─ 🎯 使用目的？
+├─ 🎯 Purpose?
 │   │
-│   ├─ 实时监控
-│   │   └─ ✅ **重绘有价值**
+│   ├─ Realtime monitoring
+│   │   └─ ✅ Repainting is useful
 │   │       ```pine
-│   │       // 实时成交量分析
+│   │       // Realtime volume analysis
 │   │       plot(volume, color=volume > ta.sma(volume, 20) ? color.green : color.red)
 │   │       ```
 │   │
-│   └─ 历史回测
-│       └─ ⚠️ **需要谨慎**
-│           💡 使用 calc_on_every_tick=false
+│   └─ Historical backtest
+│       └─ ⚠️ Use with caution
+│           💡 Use calc_on_every_tick=false
 │           ```pine
-│           strategy("策略", calc_on_every_tick=false)
+│           strategy("Strategy", calc_on_every_tick=false)
 │           ```
 │
-└─ 📝 用户告知？
-    ├─ 是 → ✅ 在描述中说明重绘行为
-    └─ 否 → ⚠️ 建议添加说明
+└─ 📝 User disclosure?
+    ├─ Yes → ✅ Document repainting behavior in description
+    └─ No → ⚠️ Recommend adding a note
         ```markdown
-        ## 注意事项
-        - 本指标在实时K线会重绘
-        - 信号以收盘确认为准
+        ## Notes
+        - This indicator repaints on realtime bars
+        - Signals are confirmed at bar close
         ```
 ```
 
-## 🔍 检测重绘的方法
+## 🔍 How to detect repainting
 
-### 1. 视觉检查
+### 1. Visual inspection
 ```
-图表观察：
-├─ 历史K线信号是否稳定？
-├─ 切换时间框架后历史是否变化？
-└─ 实时观察信号是否消失/移动？
+On the chart:
+├─ Are historical signals stable?
+├─ Do histories change after switching timeframes?
+└─ Do signals disappear/move in realtime?
 ```
 
-### 2. 代码审查
+### 2. Code review
 ```pine
-// 检查列表：
-□ 是否使用 close/high/low 实时值？
-□ 是否使用 timenow？
-□ 是否使用 request.security() 无偏移？
-□ 是否使用 varip？
-□ 是否在循环中绘图？
-□ 是否使用 calc_on_every_tick=true？
+// Checklist:
+□ Using realtime close/high/low values?
+□ Using timenow?
+□ Using request.security() without offset?
+□ Using varip?
+□ Plotting in loops?
+□ Using calc_on_every_tick=true?
 ```
 
-### 3. 测试方法
+### 3. Test method
 ```pine
 //@version=6
-indicator("重绘检测器")
-// 在不同时间框架测试
-// 观察历史信号是否稳定
+indicator("Repaint Detector")
+// Test at different timeframes
+// Observe whether historical signals are stable
 testSignal = ta.sma(close, 10) > ta.sma(close, 20)
 plotshape(testSignal, style=shape.circle, location=location.bottom)
 ```
 
-## 💡 最佳实践总结
+## 💡 Best practices summary
 
-### ✅ 安全做法
-1. **使用偏移引用**
+### ✅ Safe practices
+1. **Use offset references**
    ```pine
-   confirmedValue = value[1]  // 最简单有效
+   confirmedValue = value[1]  // simplest and effective
    ```
 
-2. **使用 barstate.isconfirmed**
+2. **Use barstate.isconfirmed**
    ```pine
    if condition and barstate.isconfirmed
-       // 执行操作
+       // do action
    ```
 
-3. **安全的跨周期请求**
+3. **Safe multi-timeframe requests**
    ```pine
    request.security(..., value[1], lookahead=barmerge.lookahead_on)
    ```
 
-4. **明确标注重绘行为**
+4. **Clearly mark repainting behavior**
    ```pine
-   // 注释说明会重绘
-   realtimeValue = ta.sma(close, 20)  // 注意：实时会重绘
+   // annotate that this repaints
+   realtimeValue = ta.sma(close, 20)  // Note: will repaint on realtime
    ```
 
-### ❌ 危险做法
-1. **使用 timenow**
+### ❌ Dangerous practices
+1. **Using timenow**
    ```pine
-   // 错误：timenow 会导致未来泄漏
-   plot(timenow, "当前时间")
+   // Wrong: timenow causes future leak
+   plot(timenow, "Current time")
    ```
 
-2. **request.security() 无保护**
+2. **request.security() without safeguards**
    ```pine
-   // 错误：可能导致未来泄漏
+   // Wrong: may cause future leak
    highTF = request.security(syminfo.tickerid, "D", high)
    ```
 
-3. **实时K线绘图**
+3. **Plotting on realtime bars**
    ```pine
-   // 错误：信号位置会移动
+   // Wrong: signal position will move
    if condition
-       label.new(bar_index, high, "信号")
+       label.new(bar_index, high, "Signal")
    ```
 
-## 特殊场景处理
+## Special cases
 
-### 1. 策略脚本
+### 1. Strategy scripts
 ```pine
-strategy("无重绘策略", calc_on_every_tick=false,
+strategy("No-repaint Strategy", calc_on_every_tick=false,
          process_orders_on_close=true)
-// 仅在收盘时处理订单，避免重绘
+// Process orders only at close to avoid repainting
 ```
 
-### 2. 多时间框架
+### 2. Multi-timeframe
 ```pine
-// 安全的高时间框架数据请求
+// Safe high-timeframe data request
 higherTF_data = request.security(syminfo.tickerid, "1D",
-    ta.sma(close, 20)[1],  // 使用偏移
-    lookahead=barmerge.lookahead_on  // 明确 lookahead
+    ta.sma(close, 20)[1],  // Use offset
+    lookahead=barmerge.lookahead_on  // Explicit lookahead
 )
 ```
 
-### 3. 实时显示 vs 历史分析
+### 3. Realtime display vs historical analysis
 ```pine
-// 条件显示：实时需要，历史不需要
+// Conditional display: realtime needs it, history doesn't
 displayValue = barstate.isrealtime ? realTimeValue : confirmedValue
 plot(displayValue)
 ```
 
-## 决策流程图总结
+## Decision flow chart summary
 
 ```mermaid
 graph TD
-    A[开始: 需要避免重绘吗？] --> B{用途}
-    B -->|实时交易/警报| C[必须避免]
-    B -->|历史分析| D[可接受]
+    A[Start: Need to avoid repainting?] --> B{Usage}
+    B -->|Live trading/alerts| C[Must avoid]
+    B -->|Historical analysis| D[Acceptable]
 
-    C --> E{确认时机}
-    E -->|可等待| F[使用已确认数据<br>close[1]]
-    E -->|需当前| G[barstate.isconfirmed]
+    C --> E{Confirmation timing}
+    E -->|Can wait| F[Use confirmed data<br>close[1]]
+    E -->|Need current| G[barstate.isconfirmed]
 
-    C --> H[跨周期数据]
-    H --> I[request.security + 偏移]
+    C --> H[MTF data]
+    H --> I[request.security + offset]
 
-    D --> J{重绘类型}
-    J -->|正常指标波动| K[可接受]
-    J -->|信号重定位| L[避免]
+    D --> J{Repainting type}
+    J -->|Normal indicator fluctuation| K[Acceptable]
+    J -->|Signal repositioning| L[Avoid]
 
-    K --> M[添加说明]
-    L --> N[使用var固定位置]
+    K --> M[Add note]
+    L --> N[Use var to fix position]
 ```
 
-记住：**没有绝对的好坏，只有适合不适合**。关键是理解重绘的原因，并根据使用场景做出合适的选择。
+Remember: there's no absolute good or bad — only what fits. Understand the cause of repainting and choose appropriately.

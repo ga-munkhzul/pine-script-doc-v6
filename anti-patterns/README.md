@@ -1,81 +1,81 @@
-# Pine Script v6 反例库 (Anti-Patterns Library)
+# Pine Script v6 Anti-Patterns Library
 
-## 概述
-本库收集了 Pine Script 开发中的常见错误模式和反例，并提供正确的替代方案。学习这些反例可以帮助你避免陷阱，编写更可靠的代码。
+## Overview
+This library collects common mistake patterns (anti-patterns) in Pine Script development and provides the correct alternatives. Learning these anti-patterns helps you avoid pitfalls and write more reliable code.
 
-## 反例分类
+## Categories
 
-### 🚫 核心反例
-1. **[重绘错误](./repainting-errors.md)**
-   - 未来泄漏
-   - 实时数据误用
-   - request.security() 错误
+### 🚫 Core Anti-patterns
+1. **[Repainting Errors](./repainting-errors.md)**
+   - Future leak
+   - Realtime data misuse
+   - request.security() mistakes
 
-2. **[性能陷阱](./performance-traps.md)**
-   - 循环过度使用
-   - 不必要的重复计算
-   - 内存泄漏
+2. **[Performance Traps](./performance-traps.md)**
+   - Overuse of loops
+   - Unnecessary recomputation
+   - Memory leaks
 
-3. **[数据结构误用](./data-structure-misuse.md)**
-   - 数组越界
-   - 类型不匹配
-   - 低效操作
+3. **[Data Structure Misuse](./data-structure-misuse.md)**
+   - Array out-of-bounds
+   - Type mismatches
+   - Inefficient operations
 
-4. **[逻辑错误](./logic-errors.md)**
-   - 条件判断错误
-   - 状态管理混乱
-   - 时序问题
+4. **[Logic Errors](./logic-errors.md)**
+   - Incorrect conditions
+   - Messy state management
+   - Timing/ordering issues
 
-### ⚠️ 高级反例
-5. **[策略错误](./strategy-mistakes.md)**
-   - 订单管理错误
-   - 风险控制缺失
-   - 回测偏差
+### ⚠️ Advanced Anti-patterns
+5. **[Strategy Mistakes](./strategy-mistakes.md)**
+   - Order management errors
+   - Missing risk control
+   - Backtest bias
 
-6. **[警报错误](./alert-mistakes.md)**
-   - 警报频率错误
-   - 消息格式问题
-   - 条件设置不当
+6. **[Alert Mistakes](./alert-mistakes.md)**
+   - Wrong alert frequency
+   - Message formatting issues
+   - Improper conditions
 
-7. **[可视化错误](./visualization-errors.md)**
-   - 绘图对象管理
-   - 颜色使用不当
-   - 显示问题
+7. **[Visualization Errors](./visualization-errors.md)**
+   - Drawing object management
+   - Poor color usage
+   - Display issues
 
-8. **[跨周期错误](./multi-timeframe-errors.md)**
-   - 时间框架混淆
-   - 数据同步问题
-   - 未来泄漏
+8. **[Multi-timeframe Errors](./multi-timeframe-errors.md)**
+   - Timeframe confusion
+   - Data synchronization problems
+   - Future leak
 
-## 反例格式说明
+## Entry Format
 
-每个反例都包含：
+Each anti-pattern includes:
 
-- ❌ **错误示例**：展示常见的错误代码
-- 🚨 **问题说明**：解释为什么这是错误的
-- ✅ **正确做法**：提供正确的实现方案
-- 💡 **最佳实践**：额外的建议和技巧
+- ❌ Error example: shows the common wrong code
+- 🚨 Problem explanation: why it is wrong
+- ✅ Correct approach: a proper implementation
+- 💡 Best practices: extra tips and guidance
 
-## 使用指南
+## How to Use
 
-1. **浏览目录**：根据你的问题找到相关反例
-2. **对比学习**：理解错误与正确的区别
-3. **应用到代码**：修改你的实际代码
-4. **定期回顾**：避免重复犯错
+1. Browse the index: find anti-patterns related to your issue
+2. Learn by comparison: understand the difference between wrong and right
+3. Apply to your code: update your actual scripts
+4. Review regularly: avoid repeating mistakes
 
-## 贡献指南
+## Contributing
 
-如果你发现了新的反例，欢迎贡献：
+If you discover a new anti-pattern, contributions are welcome:
 
-1. 创建新文件或添加到现有文件
-2. 遵循格式说明
-3. 提供清晰的问题解释
-4. 包含可运行的代码示例
+1. Create a new file or add to an existing one
+2. Follow the entry format
+3. Provide a clear problem explanation
+4. Include runnable code examples
 
-## 记住
+## Remember
 
-> "从错误中学习是最好的学习方式。了解什么不该做和知道该怎么做同样重要。"
+> "Learning from mistakes is one of the best ways to learn. Knowing what not to do is just as important as knowing what to do."
 
 ---
 
-**提示**：反例库是动态更新的，定期查看新内容以保持最新知识。
+**Tip**: This library is updated continuously. Check back regularly to keep your knowledge fresh.

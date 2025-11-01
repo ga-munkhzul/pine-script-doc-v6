@@ -1,305 +1,305 @@
-# 性能陷阱反例
+# Anti-patterns: Performance Traps
 
-性能问题会导致脚本运行缓慢、达到计算限制，甚至无法正常工作。以下是常见的性能陷阱。
+Performance issues can make scripts slow, hit computation limits, or even fail to run correctly. Here are common performance pitfalls.
 
-## 1. 循环中的重复计算
+## 1. Repeated computation inside loops
 
-### ❌ 错误示例：循环内重复计算
+### ❌ Bad example: recomputing inside the loop
 ```pine
 //@version=6
-indicator("错误：循环内重复计算")
+indicator("Error: Recompute inside loop")
 
-// ❌ 每次循环都重新计算相同的值
+// ❌ Recomputing the same value on each iteration
 var float[] results = array.new<float>()
 for i = 0 to 50
-    // 每次都重新计算MA，非常低效
+    // Recalculate MA each time — very inefficient
     ma20 = ta.sma(close, 20)
     value = close - ma20
     array.push(results, value)
 ```
 
-### 🚨 问题说明
-- `ta.sma(close, 20)` 在循环中计算了51次相同的值
-- 随着循环次数增加，计算时间呈指数增长
-- 可能触发 Pine Script 的计算时间限制
+### 🚨 Why it's a problem
+- `ta.sma(close, 20)` is computed 51 times with the same inputs
+- As loop count increases, compute time grows rapidly
+- May trigger Pine Script’s computation time limits
 
-### ✅ 正确做法：预计算值
+### ✅ Do this instead: precompute values
 ```pine
 //@version=6
-indicator("正确：预计算值")
+indicator("Correct: Precompute values")
 
-// ✅ 在循环外计算一次
+// ✅ Compute once outside the loop
 ma20 = ta.sma(close, 20)
 var float[] results = array.new<float>()
 
 for i = 0 to 50
-    // 使用预计算的值
+    // Use the precomputed value
     value = close - ma20
     array.push(results, value)
 ```
 
-## 2. 无限制增长的数组
+## 2. Unbounded array growth
 
-### ❌ 错误示例：数组无限增长
+### ❌ Bad example: array grows without bound
 ```pine
 //@version=6
-indicator("错误：内存泄漏")
+indicator("Error: Memory leak")
 
-// ❌ 数组不断增长，永不清理
+// ❌ Array keeps growing, never cleaned up
 var float[] priceHistory = array.new<float>()
 
-// 每根K线都添加数据，从不删除
+// Add on every confirmed bar, never remove
 if barstate.isconfirmed
     array.push(priceHistory, close)
 
-// 可能导致内存耗尽
+// Can exhaust memory
 avgPrice = array.avg(priceHistory)
-plot(avgPrice, "平均价格")
+plot(avgPrice, "Average price")
 ```
 
-### 🚨 问题说明
-- 数组大小无限增长，最终达到 Pine Script 限制
-- 每次计算平均都需要遍历整个数组
-- 随着时间推移，性能急剧下降
+### 🚨 Why it's a problem
+- Array size grows until Pine Script limits are hit
+- Each average requires traversing the entire array
+- Performance degrades over time
 
-### ✅ 正确做法：限制数组大小
+### ✅ Do this instead: cap the array size
 ```pine
 //@version=6
-indicator("正确：固定大小数组")
+indicator("Correct: Fixed-size array")
 
-// ✅ 限制数组最大大小
+// ✅ Cap the maximum size
 var float[] priceHistory = array.new<float>()
 maxSize = 200
 
 if barstate.isconfirmed
     array.unshift(priceHistory, close)
-    // 保持数组大小不变
+    // Keep array size bounded
     if array.size(priceHistory) > maxSize
         array.pop(priceHistory)
 
-// 计算高效的平均值
+// Efficient average
 avgPrice = array.avg(priceHistory)
-plot(avgPrice, "平均价格")
+plot(avgPrice, "Average price")
 ```
 
-## 3. 过度使用 request.security()
+## 3. Overusing request.security()
 
-### ❌ 错误示例：频繁调用跨周期请求
+### ❌ Bad example: frequent cross-timeframe requests
 ```pine
 //@version=6
-indicator("错误：频繁跨周期请求")
+indicator("Error: Frequent MTF requests")
 
-// ❌ 每个tick都请求多个时间框架
+// ❌ Request multiple timeframes on every tick
 m5_rsi = request.security(syminfo.tickerid, "5", ta.rsi(close, 14))
 m15_rsi = request.security(syminfo.tickerid, "15", ta.rsi(close, 14))
 h1_rsi = request.security(syminfo.tickerid, "60", ta.rsi(close, 14))
 h4_rsi = request.security(syminfo.tickerid, "240", ta.rsi(close, 14))
 
-// 在策略中频繁调用
+// Used frequently in strategy logic
 if m5_rsi > 50 and m15_rsi > 50 and h1_rsi > 50 and h4_rsi > 50
-    // 交易逻辑
+    // trading logic
 ```
 
-### 🚨 问题说明
-- `request.security()` 是昂贵的操作
-- 在每个tick上调用会严重影响性能
-- 多个调用会触发服务器限制
+### 🚨 Why it's a problem
+- `request.security()` is expensive
+- Calling it on every tick severely impacts performance
+- Multiple calls can hit server-side limits
 
-### ✅ 正确做法：缓存和条件请求
+### ✅ Do this instead: cache and update conditionally
 ```pine
 //@version=6
-indicator("正确：缓存跨周期数据")
+indicator("Correct: Cache MTF data")
 
-// ✅ 使用var缓存数据
+// ✅ Use var to cache values
 var float m5_rsi = na
 var float m15_rsi = na
 var float h1_rsi = na
 var float h4_rsi = na
 
-// 只在需要时更新
+// Update only when needed
 updateMTF = barstate.isconfirmed
 
 if updateMTF
-    // 批量请求
+    // Batch the requests
     m5_rsi := request.security(syminfo.tickerid, "5", ta.rsi(close, 14)[1])
     m15_rsi := request.security(syminfo.tickerid, "15", ta.rsi(close, 14)[1])
     h1_rsi := request.security(syminfo.tickerid, "60", ta.rsi(close, 14)[1])
     h4_rsi := request.security(syminfo.tickerid, "240", ta.rsi(close, 14)[1])
 
-// 使用缓存的数据
+// Use cached data
 if m5_rsi > 50 and m15_rsi > 50 and h1_rsi > 50 and h4_rsi > 50
-    // 交易逻辑
+    // trading logic
 ```
 
-## 4. 过深的嵌套循环
+## 4. Overly deep nested loops
 
-### ❌ 错误示例：嵌套循环
+### ❌ Bad example: nested loops
 ```pine
 //@version=6
-indicator("错误：嵌套循环")
+indicator("Error: Nested loops")
 
-// ❌ 嵌套循环，性能灾难
+// ❌ Nested loops — performance disaster
 var float[][] matrix = matrix.new<float>(50, 50)
 
 for i = 0 to 49
     for j = 0 to 49
-        // 2500次循环！
+        // 2500 iterations!
         matrix.set(matrix, i, j, close * (i + j))
 ```
 
-### 🚨 问题说明
-- 嵌套循环的复杂度是 O(n²)
-- 50×50 = 2500次操作
-- Pine Script 循环限制是100次，这会导致错误
+### 🚨 Why it's a problem
+- Nested loops are O(n²)
+- 50×50 = 2500 operations
+- Pine Script loop limit is ~100; this pattern will cause errors
 
-### ✅ 正确做法：向量化操作
+### ✅ Do this instead: vectorize
 ```pine
 //@version=6
-indicator("正确：向量化操作")
+indicator("Correct: Vectorized approach")
 
-// ✅ 避免嵌套循环
+// ✅ Avoid nested loops
 var float[] vector = array.new<float>()
 
-// 使用内置函数
+// Use built-in functions and single loops
 for i = 0 to 49
     value = close * i
     array.push(vector, value)
 
-// 如果真的需要矩阵，分步操作
-// 或者考虑是否真的需要这么多计算
+// If you truly need a matrix, split the work into stages
+// Or reconsider whether you need that much computation
 ```
 
-## 5. 不必要的绘图对象
+## 5. Unnecessary drawing objects
 
-### ❌ 错误示例：创建过多绘图对象
+### ❌ Bad example: creating too many objects
 ```pine
 //@version=6
-indicator("错误：过多绘图对象")
+indicator("Error: Too many drawing objects")
 
-// ❌ 为每个数据点创建标签
+// ❌ Create a label for every data point
 var label[] labels = array.new<label>()
 
-// 无限制创建标签
+// Unbounded label creation
 for i = 0 to 100
     if close > ta.sma(close, 20)
-        newLabel = label.new(bar_index - i, high[i], "高价",
+        newLabel = label.new(bar_index - i, high[i], "High",
                            color.red, size.small)
         array.push(labels, newLabel)
 ```
 
-### 🚨 问题说明
-- 标签数量无限增长
-- 每个标签都消耗内存
-- 图表变得非常缓慢
+### 🚨 Why it's a problem
+- Label count grows without control
+- Each label consumes memory
+- The chart becomes very slow
 
-### ✅ 正确做法：限制和清理
+### ✅ Do this instead: limit and clean up
 ```pine
 //@version=6
-indicator("正确：限制绘图对象")
+indicator("Correct: Limit drawing objects")
 
-// ✅ 限制最大标签数量
+// ✅ Cap the maximum number of labels
 var label[] labels = array.new<label>()
 maxLabels = 10
 
-// 只在需要时创建
+// Create only when needed
 if close > ta.sma(close, 20)
-    newLabel = label.new(bar_index, high, "高价",
+    newLabel = label.new(bar_index, high, "High",
                        color.red, size.small)
     array.unshift(labels, newLabel)
 
-    // 清理旧标签
+    // Remove old labels
     if array.size(labels) > maxLabels
         oldLabel = array.pop(labels)
         label.delete(oldLabel)
 ```
 
-## 6. 重复的复杂计算
+## 6. Repeating expensive computations
 
-### ❌ 错误示例：重复计算复杂指标
+### ❌ Bad example: recomputing complex indicators
 ```pine
 //@version=6
-indicator("错误：重复计算")
+indicator("Error: Duplicate computations")
 
-// ❌ 多次计算相同的复杂指标
+// ❌ Compute the same indicator multiple times
 if ta.rsi(close, 14) > 70
-    // 过度条件
+    // Overly strict nested condition
     if ta.rsi(close, 14) > 80
-        // 超级条件
-        plotshape(1, "超买", style=shape.triangledown)
+        // Super condition
+        plotshape(1, "Overbought", style=shape.triangledown)
 
-    // 计算MACD（也是重复的）
+    // MACD also recomputed in multiple places
     [macdLine, signalLine] = ta.macd(close, 12, 26, 9)
     if macdLine > signalLine
-        plotshape(1, "背离", style=shape.circle)
+        plotshape(1, "Divergence", style=shape.circle)
 ```
 
-### 🚨 问题说明
-- `ta.rsi(close, 14)` 计算了多次
-- `ta.macd()` 在多个地方调用
-- 复杂指标的计算成本很高
+### 🚨 Why it's a problem
+- `ta.rsi(close, 14)` is computed multiple times
+- `ta.macd()` is called in several places
+- Complex indicators are expensive to compute
 
-### ✅ 正确做法：缓存计算结果
+### ✅ Do this instead: cache results
 ```pine
 //@version=6
-indicator("正确：缓存计算")
+indicator("Correct: Cache computations")
 
-// ✅ 一次计算，多次使用
+// ✅ Compute once, reuse many times
 rsi14 = ta.rsi(close, 14)
 [macdLine, signalLine] = ta.macd(close, 12, 26, 9)
 
-// 使用缓存的值
+// Use cached values
 if rsi14 > 70
     if rsi14 > 80
-        plotshape(1, "超买", style=shape.triangledown)
+        plotshape(1, "Overbought", style=shape.triangledown)
 
     if macdLine > signalLine
-        plotshape(1, "背离", style=shape.circle)
+        plotshape(1, "Divergence", style=shape.circle)
 ```
 
-## 7. 不必要的字符串操作
+## 7. Unnecessary string operations
 
-### ❌ 错误示例：频繁字符串拼接
+### ❌ Bad example: frequent string concatenation
 ```pine
 //@version=6
-indicator("错误：频繁字符串操作")
+indicator("Error: Frequent string operations")
 
-// ❌ 每次都拼接字符串
+// ❌ Concatenate strings on every iteration
 for i = 0 to 20
-    message = "价格: " + str.tostring(close[i]) +
-              " 时间: " + str.format("{0,date,yyyy-MM-dd}", time[i]) +
+    message = "Price: " + str.tostring(close[i]) +
+              " Time: " + str.format("{0,date,yyyy-MM-dd}", time[i]) +
               " RSI: " + str.tostring(ta.rsi(close[i], 14))
-    // 使用message
+    // use message
 ```
 
-### 🚨 问题说明
-- 字符串操作在 Pine Script 中很昂贵
-- 在循环中进行字符串拼接会严重影响性能
-- 每次拼接都创建新的字符串对象
+### 🚨 Why it's a problem
+- String operations are expensive in Pine Script
+- Concatenating strings inside loops severely impacts performance
+- Each concatenation creates a new string object
 
-### ✅ 正确做法：减少字符串操作
+### ✅ Do this instead: minimize string work
 ```pine
 //@version=6
-indicator("正确：减少字符串操作")
+indicator("Correct: Minimize string operations")
 
-// ✅ 只在需要时创建字符串
-// 预计算数值
+// ✅ Only create strings when needed
+// Precompute numbers
 rsi14 = ta.rsi(close, 14)
 
-// 只在最后一根K线显示详细信息
+// Only show detailed info on the last bar
 if barstate.islast
-    message = "价格: " + str.tostring(close) +
+    message = "Price: " + str.tostring(close) +
               " RSI: " + str.tostring(rsi14)
     label.new(bar_index, high, message)
 ```
 
-## 8. 忽略早期退出
+## 8. Ignoring early exit
 
-### ❌ 错误示例：不必要的完整循环
+### ❌ Bad example: unnecessary full-loop iteration
 ```pine
 //@version=6
-indicator("错误：不必要的完整循环")
+indicator("Error: Unnecessary full loop")
 
-// ❌ 即使找到目标也继续循环
+// ❌ Keep looping even after target is found
 var float[] data = array.from(1, 5, 10, 15, 20, 25, 30)
 target = 15
 foundIndex = -1
@@ -307,20 +307,20 @@ foundIndex = -1
 for i = 0 to array.size(data) - 1
     if array.get(data, i) == target
         foundIndex := i
-    // 继续循环，浪费时间
+    // Continues looping, wasting time
 ```
 
-### 🚨 问题说明
-- 找到目标后继续循环
-- 没有使用 break 语句（Pine Script 不支持，但可以模拟）
-- 浪费不必要的计算资源
+### 🚨 Why it's a problem
+- Continues looping after the target is found
+- No break statement used (Pine Script does not support it, but can be simulated)
+- Wastes unnecessary compute resources
 
-### ✅ 正确做法：条件退出
+### ✅ Do this instead: conditional exit
 ```pine
 //@version=6
-indicator("正确：条件退出")
+indicator("Correct: Conditional exit")
 
-// ✅ 找到目标后退出
+// ✅ Exit once the target is found
 var float[] data = array.from(1, 5, 10, 15, 20, 25, 30)
 target = 15
 foundIndex = -1
@@ -328,81 +328,81 @@ foundIndex = -1
 for i = 0 to array.size(data) - 1
     if array.get(data, i) == target
         foundIndex := i
-        break  // 使用 break 提前退出
-    // 找到后不会执行
+        break  // Use break to exit early
+    // Not executed after found
 ```
 
-## 9. 过度使用历史引用
+## 9. Overusing historical references
 
-### ❌ 错误示例：深度历史引用
+### ❌ Bad example: deep historical references
 ```pine
 //@version=6
-indicator("错误：深度历史引用")
+indicator("Error: Deep history references")
 
-// ❌ 引用过多的历史数据
+// ❌ Referencing too much history
 volatility = ta.stdev(ta.change(close, 1), 100) * 100
-veryOldMA = ta.sma(close, 500)  // 引用500根K线前
-ancientHigh = ta.highest(high, 1000)  // 引用1000根K线前
+veryOldMA = ta.sma(close, 500)  // reference 500 bars ago
+ancientHigh = ta.highest(high, 1000)  // reference 1000 bars ago
 
-// 每个引用都需要访问历史数据
-plot(volatility, "波动率")
+// Each reference requires accessing history
+plot(volatility, "Volatility")
 plot(veryOldMA, "500MA")
 ```
 
-### 🚨 问题说明
-- 深度历史引用需要加载大量历史数据
-- 每次计算都需要遍历历史数据
-- 在低时间框架上尤其缓慢
+### 🚨 Why it's a problem
+- Deep history requires loading lots of data
+- Each calculation traverses more history
+- Especially slow on lower timeframes
 
-### ✅ 正确做法：合理的历史长度
+### ✅ Do this instead: use reasonable history lengths
 ```pine
 //@version=6
-indicator("正确：合理历史长度")
+indicator("Correct: Reasonable history length")
 
-// ✅ 使用合理的历史长度
-volatility = ta.stdev(ta.change(close, 1), 20) * 100  // 20周期足够
-recentMA = ta.sma(close, 100)  // 100周期更实用
-recentHigh = ta.highest(high, 50)  // 50周期高点的近期参考
+// ✅ Use reasonable windows
+volatility = ta.stdev(ta.change(close, 1), 20) * 100  // 20 periods is sufficient
+recentMA = ta.sma(close, 100)  // 100 periods is more practical
+recentHigh = ta.highest(high, 50)  // Recent 50-bar high as a reference
 
-plot(volatility, "波动率")
+plot(volatility, "Volatility")
 plot(recentMA, "100MA")
 ```
 
-## 10. 忽略条件计算
+## 10. Ignoring conditional computation
 
-### ❌ 错误示例：总是计算所有内容
+### ❌ Bad example: always compute everything
 ```pine
 //@version=6
-indicator("错误：总是计算")
+indicator("Error: Always compute")
 
-// ❌ 即使不需要也计算所有指标
+// ❌ Compute all indicators even when not needed
 rsi = ta.rsi(close, 14)
 macd = ta.macd(close, 12, 26, 9)
 bb = ta.bb(close, 20, 2)
 stoch = ta.stoch(close, high, low, 14)
 
-// 即使只显示一个也计算所有
+// Compute everything even if only one is displayed
 showRSI = input.bool(false)
 if showRSI
     plot(rsi, "RSI")
 ```
 
-### 🚨 问题说明
-- 计算了不需要的指标
-- 浪费 CPU 资源
-- 增加脚本加载时间
+### 🚨 Why it's a problem
+- Unnecessary indicators are computed
+- Wastes CPU cycles
+- Increases script load time
 
-### ✅ 正确做法：条件计算
+### ✅ Do this instead: compute conditionally
 ```pine
 //@version=6
-indicator("正确：条件计算")
+indicator("Correct: Conditional computation")
 
-// ✅ 只计算需要的内容
+// ✅ Compute only what is needed
 showRSI = input.bool(false)
 showMACD = input.bool(false)
 showBB = input.bool(false)
 
-// 条件计算
+// Conditional computation
 var float rsi = na
 var float macd = na
 var [bbUpper, bbMiddle, bbLower] = [na, na, na]
@@ -417,32 +417,32 @@ if showMACD
 
 if showBB
     [bbUpper, bbMiddle, bbLower] = ta.bb(close, 20, 2)
-    plot(bbUpper, "BB上轨")
-    plot(bbMiddle, "BB中轨")
-    plot(bbLower, "BB下轨")
+    plot(bbUpper, "BB Upper")
+    plot(bbMiddle, "BB Middle")
+    plot(bbLower, "BB Lower")
 ```
 
-## 性能优化检查清单
+## Performance optimization checklist
 
-1. **是否有循环内的重复计算？**
-2. **数组是否有无限增长的风险？**
-3. **request.security() 调用是否过于频繁？**
-4. **是否有不必要的嵌套循环？**
-5. **绘图对象数量是否得到控制？**
-6. **复杂指标是否被缓存？**
-7. **字符串操作是否最小化？**
-8. **是否合理使用历史引用？**
-9. **是否有条件计算的需要？**
-10. **是否找到后能提前退出循环？**
+1. Is there repeated computation inside loops?
+2. Do arrays risk unbounded growth?
+3. Are request.security() calls too frequent?
+4. Any unnecessary nested loops?
+5. Is the number of drawing objects controlled?
+6. Are complex indicators cached?
+7. Are string operations minimized?
+8. Are historical references reasonable?
+9. Is conditional computation used where appropriate?
+10. Can loops exit early once the target is found?
 
-## 性能优化黄金法则
+## Golden rules of performance
 
-1. **预计算**：循环外计算，循环内使用
-2. **限制大小**：数组和对象要有上限
-3. **缓存数据**：昂贵的操作要缓存结果
-4. **条件执行**：不需要就不计算
-5. **批量操作**：使用内置函数代替循环
-6. **及时清理**：定期清理不需要的对象
-7. **合理引用**：不要过度依赖历史数据
+1. Precompute: compute outside loops, use inside
+2. Limit sizes: cap arrays and object counts
+3. Cache data: memoize expensive results
+4. Conditional execution: don’t compute what you don’t need
+5. Batch operations: prefer built-ins over manual loops
+6. Clean up: regularly delete unused objects
+7. Reasonable references: avoid excessive historical lookbacks
 
-记住：**性能优化是平衡的艺术，先让它正确，再让它快速。**
+Remember: Performance optimization is a balancing act — make it correct first, then make it fast.

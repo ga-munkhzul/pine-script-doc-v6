@@ -1,252 +1,253 @@
-# 脚本类型选择决策树
+# Script Type Selection Decision Tree
 
-## 🎯 起始问题：我需要创建什么类型的脚本？
+## 🎯 Starting question: What type of script do I need to create?
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│         🤔 你想创建什么？                          │
+│         🤔 What do you want to create?              │
 └─────────────────────────────────────────────────────┘
     │
-    ├─ 📊 分析和显示数据
+    ├─ 📊 Analyze and display data
     │   │
-    │   ├─ 只显示图形和指标？
-    │   │   └─ ✅ **使用 Indicator**
+    │   ├─ Only display charts and indicators?
+    │   │   └─ ✅ **Use Indicator**
     │   │       ```pine
-    │   │       indicator("我的指标", overlay=true)
+    │   │       indicator("My Indicator", overlay=true)
     │   │       ```
     │   │
-    │   └─ 需要其他脚本复用功能？
-    │       └─ ✅ **使用 Library**
+    │   └─ Need reusable functionality for other scripts?
+    │       └─ ✅ **Use Library**
     │           ```pine
-    │           library("我的库", 2, overlay=false)
+    │           library("My Library", 2, overlay=false)
     │           export myFunction() =>
-    │               // 实现代码
+    │               // implementation
     │           ```
     │
-    └─ 💰 模拟交易和回测
+    └─ 💰 Simulated trading and backtesting
         │
-        └─ ✅ **使用 Strategy**
+        └─ ✅ **Use Strategy**
             ```pine
-            strategy("我的策略", overlay=true)
+            strategy("My Strategy", overlay=true)
             ```
 ```
 
-## 详细决策流程
+## Detailed decision flow
 
-### 📊 Indicator 路径
+### 📊 Indicator path
 
 ```
-┌─ 你选择了 Indicator
+┌─ You chose Indicator
 │
-├─ 🎨 显示在主图还是副图？
-│   ├─ 主图（价格图上）
-│   │   └─ indicator("名称", overlay=true)
-│   └─ 副图（独立窗口）
-│       └─ indicator("名称", overlay=false)
+├─ 🎨 Display on main chart or separate pane?
+│   ├─ Main chart (on price chart)
+│   │   └─ indicator("Name", overlay=true)
+│   └─ Separate pane (independent window)
+│       └─ indicator("Name", overlay=false)
 │
-├─ 📈 需要多个输出吗？
-│   ├─ 是 → 考虑 plot 数量限制（最多 55个）
-│   └─ 否 → 单个 plot 即可
+├─ 📈 Need multiple outputs?
+│   ├─ Yes → consider plot count limit (max 55)
+│   └─ No → a single plot is enough
 │
-├─ 🔔 需要警报功能？
-│   ├─ 简单警报 → 使用 alertcondition()
+├─ 🔔 Need alerts?
+│   ├─ Simple alerts → use alertcondition()
 │   │   ```pine
-│   │   alertcondition(buySignal, "买入信号")
+│   │   alertcondition(buySignal, "Buy signal")
 │   │   ```
-│   └─ 复杂警报 → 使用 alert()
+│   └─ Complex alerts → use alert()
 │       ```pine
 │       if buySignal
-│           alert("买入信号触发！", alert.freq_once_per_bar)
+│           alert("Buy signal triggered!", alert.freq_once_per_bar)
 │       ```
 │
-└─ 💡 特殊需求？
-    ├─ 需要输入参数 → 使用 input.*()
-    ├─ 需要颜色自定义 → 使用 input.color()
-    └─ 需要样式选项 → 使用 input.style()
+└─ 💡 Special requirements?
+    ├─ Need input parameters → use input.*()
+    ├─ Need color customization → use input.color()
+    └─ Need style options → use input.style()
 ```
 
-### 💰 Strategy 路径
+### 💰 Strategy path
 
 ```
-┌─ 你选择了 Strategy
+┌─ You chose Strategy
 │
-├─ 💵 交易方向？
-│   ├─ 仅做多
-│   │   └─ strategy("名称", default_qty_type=strategy.percent_of_equity, default_qty_value=100)
-│   ├─ 仅做空
-│   │   └─ strategy("名称", shorttitle="做空", default_qty_type=strategy.percent_of_equity)
-│   └─ 双向交易
-│       └─ strategy("名称", default_qty_type=strategy.percent_of_equity)
+├─ 💵 Trade direction?
+│   ├─ Long only
+│   │   └─ strategy("Name", default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+│   ├─ Short only
+│   │   └─ strategy("Name", shorttitle="Short", default_qty_type=strategy.percent_of_equity)
+│   └─ Both directions
+│       └─ strategy("Name", default_qty_type=strategy.percent_of_equity)
 │
-├─ ⏰ 订单执行时机？
-│   ├─ 仅收盘价
+├─ ⏰ Order execution timing?
+│   ├─ Close only
 │   │   └─ calc_on_every_tick=false
-│   └─ 每个tick
+│   └─ Every tick
 │       └─ calc_on_every_tick=true
-│       ⚠️ 可能导致重绘
+│       ⚠️ May cause repainting
 │
-├─ 💰 资金管理？
-│   ├─ 固定数量
+├─ 💰 Position sizing?
+│   ├─ Fixed quantity
 │   │   └─ default_qty_type=strategy.fixed
-│   ├─ 百分比权益
+│   ├─ Percent of equity
 │   │   └─ default_qty_type=strategy.percent_of_equity
-│   └─ 固定金额
+│   └─ Fixed cash
 │       └─ default_qty_type=strategy.cash
 │
-├─ 📊 手续费和滑点？
-│   ├─ 使用默认
+├─ 📊 Fees and slippage?
+│   ├─ Use default
 │   │   └─ commission_type=strategy.commission.percent
-│   └─ 自定义
-│       └─ 设置 commission_value, slippage
+│   └─ Custom
+│       └─ Set commission_value, slippage
 │
-└─ 🎯 退出策略？
-    ├─ 固定止盈止损
-    │   └─ strategy.exit("退出", "入场", profit=100, loss=50)
-    ├─ 动态退出
-    │   └─ strategy.close("入场", when=exitCondition)
-    └─ 时间退出
+└─ 🎯 Exit strategy?
+    ├─ Fixed TP/SL
+    │   └─ strategy.exit("Exit", "Entry", profit=100, loss=50)
+    ├─ Dynamic exit
+    │   └─ strategy.close("Entry", when=exitCondition)
+    └─ Time-based exit
         └─ strategy.close_all(when=time >= timestamp(syminfo.tickerid, "2300-01-01"))
 ```
 
-### 📚 Library 路径
+### 📚 Library path
 
 ```
-┌─ 你选择了 Library
+┌─ You chose Library
 │
-├─ 📦 需要导出什么？
-│   ├─ 函数
+├─ 📦 What do you need to export?
+│   ├─ Functions
 │   │   ```pine
 │   │   export calculateRSI(source, length) =>
 │   │       ta.rsi(source, length)
 │   │   ```
-│   ├─ 类型
+│   ├─ Types
 │   │   ```pine
 │   │   export type MyType
 │   │       float value
 │   │       string name
 │   │   ```
-│   └─ 枚举
+│   └─ Enums
 │       ```pine
 │       export enum Mode
 │           FAST = 1
 │           SLOW = 2
 │       ```
 │
-├─ 🔄 版本控制？
-│   └─ library("名称", 版本号)
+├─ 🔄 Versioning?
+│   └─ library("Name", version)
 │       ```pine
-│       library("我的工具库", 2)
+│       library("My Toolkit", 2)
 │       ```
 │
-├─ 📥 导入使用？
+├─ 📥 Import and use?
 │   ```pine
 │   import myLib as lib from "MyLibrary/1"
 │   result = lib.calculateRSI(close, 14)
 │   ```
 │
-└─ 💡 最佳实践
-    ├─ 相关功能组织在一起
-    ├─ 清晰的函数文档
-    ├─ 合理的版本管理
-    └─ 避免循环依赖
+└─ 💡 Best practices
+    ├─ Group related functionality together
+    ├─ Clear function documentation
+    ├─ Sensible versioning
+    └─ Avoid circular dependencies
 ```
 
-## 决策检查清单
+## Decision checklist
 
-### Indicator 适用场景
-- [ ] 需要显示技术指标
-- [ ] 需要分析价格行为
-- [ ] 需要视觉化数据
-- [ ] 不涉及实际交易
+### Indicator use cases
+- [ ] Need to display technical indicators
+- [ ] Need to analyze price action
+- [ ] Need data visualization
+- [ ] No actual trading involved
 
-### Strategy 适用场景
-- [ ] 需要模拟交易
-- [ ] 需要回测功能
-- [ ] 需要性能指标
-- [ ] 需要订单管理
+### Strategy use cases
+- [ ] Need simulated trading
+- [ ] Need backtesting
+- [ ] Need performance metrics
+- [ ] Need order management
 
-### Library 适用场景
-- [ ] 代码需要复用
-- [ ] 创建通用工具
-- [ ] 组织复杂项目
-- [ ] 提供API接口
+### Library use cases
+- [ ] Code needs reuse
+- [ ] Create general-purpose utilities
+- [ ] Organize complex projects
+- [ ] Provide API surface
 
-## 转换可能性
+## Conversion possibilities
 
 ```
 ┌──────────────────────┐    ┌──────────────────────┐
-│    Indicator         │    │      Strategy         │
-│ (可以转换为 Strategy) │◄──►│ (可以简化为 Indicator)│
+│      Indicator       │    │       Strategy       │
+│   (can become a      │◄──►│   (can be simplified │
+│       Strategy)      │    │     to Indicator)    │
 └──────────────────────┘    └──────────────────────┘
                                       │
                                       ▼
                                ┌──────────────────────┐
-                               │      Library          │
-                               │ (可提取公共部分)     │
+                               │       Library        │
+                               │ (extract shared code)│
                                └──────────────────────┘
 ```
 
-## 常见错误避免
+## Common mistakes to avoid
 
-1. ❌ 在 Indicator 中使用 strategy 函数
-2. ❌ 在 Strategy 中缺少风险控制
-3. ❌ Library 中直接访问图表数据
-4. ❌ 混淆 overlay 参数设置
+1. ❌ Using strategy.* functions inside an Indicator
+2. ❌ Missing risk controls in a Strategy
+3. ❌ Accessing chart data directly inside a Library
+4. ❌ Misusing the overlay parameter settings
 
-## 示例代码模板
+## Example code templates
 
-### Indicator 模板
+### Indicator template
 ```pine
 //@version=6
-indicator("我的指标", shorttitle="MI", overlay=true, timeframe="", timeframe_gaps=false)
+indicator("My Indicator", shorttitle="MI", overlay=true, timeframe="", timeframe_gaps=false)
 
-// 输入参数
-len = input.int(14, "周期")
-src = input.source(close, "源")
+// Inputs
+len = input.int(14, "Length")
+src = input.source(close, "Source")
 
-// 计算
+// Calculations
 ma = ta.sma(src, len)
 
-// 绘图
+// Plotting
 plot(ma, color=color.blue, title="MA")
 ```
 
-### Strategy 模板
+### Strategy template
 ```pine
 //@version=6
-strategy("我的策略", overlay=true,
+strategy("My Strategy", overlay=true,
          default_qty_type=strategy.percent_of_equity,
          default_qty_value=100,
          commission_type=strategy.commission.percent,
          commission_value=0.1)
 
-// 输入参数
-len = input.int(14, "MA周期")
-risk = input.float(2.0, "风险%") / 100
+// Inputs
+len = input.int(14, "MA length")
+risk = input.float(2.0, "Risk %") / 100
 
-// 计算
+// Calculations
 ma = ta.sma(close, len)
 longCond = ta.crossover(close, ma)
 shortCond = ta.crossunder(close, ma)
 
-// 交易逻辑
+// Trading logic
 if longCond
     strategy.entry("Long", strategy.long)
 if shortCond
     strategy.entry("Short", strategy.short)
 
-// 风险管理
+// Risk management
 stopLoss = strategy.position_avg_price * (1 - risk)
 takeProfit = strategy.position_avg_price * (1 + risk * 2)
 strategy.exit("Exit", "Long", stop=stopLoss, limit=takeProfit)
 ```
 
-### Library 模板
+### Library template
 ```pine
 //@version=6
-library("技术指标库", 2)
+library("Technical Indicators Library", 2)
 
-// 导出函数
+// Exported types and functions
 export type MACD
     float macd
     float signal
